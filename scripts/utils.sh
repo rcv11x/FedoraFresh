@@ -38,7 +38,7 @@ function bannerText() {
 function checkRPMfusion() {
     if [[ -f /etc/yum.repos.d/rpmfusion-free.repo || -f /etc/yum.repos.d/rpmfusion-nonfree.repo ]]; then
         echo
-        bannerText "${yellow}El repositorio de RPM Fusion ya está instalado.${resetStyle}"
+        bannerText "${yellow}El repositorio de RPM Fusion ya se encuentra instalado.${resetStyle}"
         echo -e "$(msg_ok) Omitiendo...\n"
         sleep 5
     else
@@ -70,11 +70,10 @@ function check_intel_or_amd_cpu() {
 }
 
 function installMultimedia() {
-
     clear
-    bannerText "Por defecto Fedora ${fedora_version} proporciona unicamente Codecs free que suelen carecer de muchas funcionalidades y soporte, a continuación se instalarán los Codecs Multimedia completos para un buen funcionamiento y soporte, para ello hay que añadir un repositorio de terceros llamado RPM Fusion ¿Quieres continuar? [y/n]"
-    read -p ">> " opt
     while true; do
+        bannerText "Por defecto Fedora ${fedora_version} proporciona unicamente Codecs free que suelen carecer de muchas funcionalidades y soporte, a continuación se instalarán los Codecs Multimedia completos para un buen funcionamiento y soporte, para ello hay que añadir un repositorio de terceros llamado RPM Fusion ¿Quieres continuar? [y/n]"
+        read -p ">> " opt
         case $opt in 
             y) 
 
@@ -90,16 +89,22 @@ function installMultimedia() {
                 echo -e "\n${purple}[!] Configurando OpenH264 para Firefox...${resetStyle}\n"
                 sudo dnf config-manager --set-enabled fedora-cisco-openh264
                 sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
+                break
                 ;;
+                
             n)
+                echo -e "\n${purple}[!] Omitiendo instalación de codecs multimedia.${resetStyle}\n"
+                break
                 ;;
 
-            *) 
-                    echo -e "\n${red}[!] Opción no válida${resetStyle}"
-                    echo -e "\nPresiona una tecla para continuar"
-                    read -n 1 -s -r -p ""
-                    clear
-                    ;;
+            *)
+
+                echo -e "\n${red}[!] Opción no válida, por favor elige [y/n]${resetStyle}"
+                echo -e "\nPresiona una tecla para continuar"
+                read -n 1 -s -r -p ""
+                clear
+                ;;
+                
         esac
     done
 

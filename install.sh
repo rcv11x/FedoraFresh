@@ -1,8 +1,6 @@
 #!/bin/bash
 
 source "scripts/utils.sh"
-source "scripts/gpu-drivers.sh"
-source "scripts/multimedia.sh"
 
 trap stop_script INT
 
@@ -33,7 +31,7 @@ function install() {
     echo -e "${purple}[!] Configurando DNF...${resetStyle}"; sleep 1
     #echo "max_parallel_downloads=10" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
     checkRPMfusion
-    #installMultimedia
+    installMultimedia
     sleep 1
 
 
