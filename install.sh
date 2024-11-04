@@ -19,7 +19,7 @@ function show_banner() {
 function menu() {
 
     echo -e "(1) ${cyan}Instalar FedoraFresh${resetStyle}"
-    echo -e "(2) ${cyan}Instalar pack Flatpak's${resetStyle}"
+    echo -e "(2) ${cyan}Instalar Flatpak's${resetStyle}"
     echo -e "(3) ${cyan}Aplicar temas GRUB${resetStyle}"
     echo -e "(i) ${cyan}Informacion del sistema${resetStyle}"
     echo -e "(0) ${cyan}Exit${resetStyle}\n"
@@ -31,7 +31,7 @@ function installation() {
     read -r -p "fedorafresh >> " yesno
     if [[ $yesno == "n" || $yesno == "N" ]]; then
         clear
-        init
+        main
     elif [[ $yesno == "y" || $yesno == "Y" ]]; then
         clear
         custom_banner_text "${yellow} EMPEZANDO INSTALACION ${resetStyle}\n"; sleep 2; clear
@@ -91,7 +91,7 @@ function installation() {
        
 }
 
-function init(){
+function main(){
     clear
     if [[ $(id -u) = 0 || $(whoami) = "root" ]]; then
         echo -e "\n${red}[!] Ejecuta el script sin sudo\n${resetStyle}"
@@ -134,4 +134,4 @@ function init(){
     
 }
 
-init
+main
