@@ -30,10 +30,13 @@ y Reinicia el sistema
 
 Clona el repo: 
 
-`git clone https://github.com/rcv11x/FedoraFresh`
+`git clone https://github.com/rcv11x/FedoraFresh`<br>
+
+Entra
+
 `cd FedoraFresh`
 
 Asigna permisos de ejecucion al script y ejecutalo:
 
-`chmod +x install.sh`,<br>
+`chmod +x install.sh`<br>
 `./install`
