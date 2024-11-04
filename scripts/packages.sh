@@ -1,0 +1,89 @@
+#!/bin/bash 
+
+source "../scripts/utils.sh"
+############################################################################################################
+#
+#  La primera lista son paquetes flatpak
+#  La segunda lista son paquetes dnf (sistema)
+#
+#  Si hay algun paquete de ambas listas que no le interesa simplemente comentelo con una amoadila '#'
+#
+#  [!] también puede agregar mas paquetes
+############################################################################################################
+
+function install_flatpaks() {
+
+    echo -e "\n${purple}[!] Instalando paquetes flatpak...${resetStyle}\n"; sleep 2
+
+    flatpak_packages=(
+        com.mojang.Minecraft # --> Launcher de Minecraft
+        com.spotify.Client # --> Cliente de Spotify
+        com.github.wwmm.easyeffects # --> Efectos de audio y equalizador para pipewire
+        # com.visualstudio.code # --> Editor de codigo Visual Studio Code
+        # dev.zed.Zed # --> Editor de codigo Zed
+        # org.gimp.GIMP # --> Editor de fotos GIMP
+        # com.obsproject.Studio # --> OBS Studio (grabar video y transmision)
+        # org.telegram.desktop # --> Telegram
+        # net.lutris.Lutris # --> Cliente para jugar juegos de Epic Games, GOG, EA App
+        # com.heroicgameslauncher.hgl # --> Cliente para jugar juegos de Epic Games, GOG y Amazon Prime Games
+        # dev.vencord.Vesktop # --> Cliente de discord de terceros con muchas mejoras (transmision de pantalla, mejor audio...)
+        # org.qbittorrent.qBittorrent # --> Cliente torrent de codigo abierto
+        # org.videolan.VLC # --> Reproductor de video y audio
+        # md.obsidian.Obsidian # --> Editor y notas en Markdown
+        # de.leopoldluley.Clapgrep # --> Interfaz de usuario facil para grep (buscar archivos en el sistema)
+        # dev.bragefuglseth.Keypunch # --> Practicar mecanografia
+        # com.github.tchx84.Flatseal # --> Administrador de permisos de Flatpak 
+        # io.gitlab.theevilskeleton.Upscaler # --> Mejora imagenes a una resolucion mayor o menor
+        # com.github.unrud.VideoDownloader # --> Descarga videos de youtube o otra web de forma facil
+        # -- Emuladores -- #
+        # net.rpcs3.RPCS3 # --> Emulador de PS3
+        # org.DolphinEmu.dolphin-emu # --> Emulador de Wii y Gamecube
+        # net.kuribo64.melonDS # --> Emulador de Nintendo DS
+        org.ppsspp.PPSSPP # --> Emulador de PSP
+        # net.pcsx2.PCSX2 # --> Emulador de PS2
+)
+
+    for package in "${flatpak_packages[@]}"; do
+        flatpak install flathub -y "$package"
+    done
+
+    custom_banner_text "${yellow} Se han instalado todos los paquetes flatpak ${resetStyle}"
+    echo -e "\n\nPresiona una tecla para continuar"
+    read -n 1 -s -r -p ""
+    clear
+}
+
+dnf_packages=(
+        # Esenciales
+        vim
+        git
+        curl
+        wget
+        htop
+        btop
+        fastfetch
+        lm_sensors
+        kitty
+        zsh
+        lsd
+        bat
+        timeshift
+        wine
+        # Programas y utilidades para juegos
+        steam
+        mangohud
+        goverlay
+        nvtop
+        # Soporte archivos comprimidos (extraer, comprimir...)
+        unzip
+        p7zip
+        p7zip-plugins
+        unrar
+        thunderbird
+        # VPN
+        wireguard-tools
+        kdenlive
+        krita
+        yt-dlp
+
+    )
