@@ -1,8 +1,11 @@
 #!/bin/bash
 
+# Creado por: rcv11x (Alejandro M) (2024)
+# Licencia: MIT
+
 source "../fedorafresh.sh"
 
-# -- Colors -- #
+# -- Colors and Vars-- #
 
 resetStyle="\e[0m"
 red="\e[0;31m"
@@ -14,7 +17,6 @@ purple="\e[0;35m"
 white="\e[0;37m"
 black="\e[0;30m"
 
-# -- Vars -- # 
 fedora_version=$(cat /etc/os-release | grep -i "VERSION_ID" | awk -F'=' '{print $2}')
 fedora_variant=$(cat /etc/os-release | grep -w "VARIANT" | awk -F'=' '{print $2}' | sed 's/"//g')
 current_dir=$(pwd)
@@ -29,6 +31,11 @@ function stop_script () {
 
 function msg_ok () {
     echo -e "\n${red}[${white} OK! ${red}] ${resetStyle}\n"
+}
+
+function press_any_key () {
+    echo -e "\nPresiona una tecla para continuar"
+    read -n 1 -s -r -p ""
 }
 
 function custom_banner_text () {
@@ -297,4 +304,64 @@ function apply_grub_themes () {
                 ;;
         esac
     done
+}
+
+function optimization () {
+
+    clear
+    custom_banner_text "${red} OPTIMIZACION Y LIMPIEZA DE LA DISTRO ${resetStyle}"
+    echo -e "\n- Se le hará alguna pregunta y tendrá que responder con y/N ¿Continuar?\n"
+    read -r -p "fedorafresh(optimization) >> " opt
+    opt=${opt:-N}
+    if [[ "$opt" =~ ^[Yy]$ ]]; then
+        clear
+        echo -e "${red}[!] A continuación se van a buscar paquetes huérfanos que ya no son necesarios en el sistema. Asegúrate de que los quieres borrar y presiona y/N más abajo para continuar\n${resetStyle}"
+        sleep 3
+        
+        packages_to_remove=$(sudo dnf autoremove --assumeno | tail -n +3)
+
+        if [[ -z "$packages_to_remove" ]]; then
+            echo "$(msg_ok) No hay paquetes huérfanos para eliminar."
+            press_any_key
+        else
+            echo -e "\n${yellow}[!] Se eliminarán los siguientes paquetes:${resetStyle}\n$packages_to_remove\n${resetStyle}"
+            
+            read -r -p "¿Deseas continuar con la eliminación? (y/N): " confirm
+            confirm=${confirm:-N}
+            
+            if [[ "$confirm" =~ ^[Yy]$ ]]; then
+                sudo dnf autoremove -y
+                echo "Paquetes eliminados."
+            else
+                echo "Eliminación cancelada."
+            fi
+        fi
+
+        clear
+        echo -e "${yellow}Eliminando cache de miniaturas y archivos temporales...${resetStyle}"; sleep 1.5
+        user_cache_size=$(du -hs ~/.cache/ | awk '{print $1}')
+        rm -rf ~/.cache/*
+        echo "$(msg_ok) Se han eliminado todos los archivos temporales y cache de miniaturas del usuario $USER - Se han limpiado $user_cache_size"
+        echo -e "${red}[!] Con el paso del tiempo y el uso del sistema se volverá a llenar la cache poco a poco${resetStyle}"
+        press_any_key
+
+        clear
+        varlog_size=$(du -hs /var/log 2> /dev/null | awk '{print $1}')
+        echo -e "${yellow}He detectado que su carpeta /var/log (donde se almacenan los logs del sistema) tiene un tamaño de $varlog_size ¿Quiere eliminar los logs de las ultimas 2 semanas? presiona y/N ${resetStyle}"
+        sleep 1.5
+        
+        read -r -p "¿Desea continuar con la eliminación de logs? (y/N): " confirm
+        confirm=${confirm:-N}
+        if [[ "$confirm" =~ ^[Yy]$ ]]; then
+            sudo journalctl --vacuum-time=2weeks
+            echo "$(msg_ok) Se han eliminado todos los logs de las últimas 2 semanas."
+        else
+            echo "[!] Eliminación de logs cancelada."
+        fi
+        
+        press_any_key
+        clear
+    else 
+        main
+    fi
 }

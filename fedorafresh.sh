@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Creado por: rcv11x (Alejandro M) (2024)
+# Licencia: MIT
+
 source "scripts/utils.sh"
 source "scripts/packages.sh"
 
@@ -115,6 +118,10 @@ function main(){
                 3)
                     clear
                     apply_grub_themes
+                    ;;
+                4)
+                    clear
+                    optimization
                     ;;
                 i)
                     clear
