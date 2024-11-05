@@ -21,6 +21,7 @@ function menu() {
     echo -e "(1) ${cyan}Instalar FedoraFresh${resetStyle}"
     echo -e "(2) ${cyan}Instalar Flatpak's${resetStyle}"
     echo -e "(3) ${cyan}Aplicar temas GRUB${resetStyle}"
+    echo -e "(4) ${cyan}Limpiar y Optimizar distro${resetStyle}"
     echo -e "(i) ${cyan}Informacion del sistema${resetStyle}"
     echo -e "(0) ${cyan}Exit${resetStyle}\n"
 }

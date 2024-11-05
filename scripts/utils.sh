@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "../script.sh"
+source "../install.sh"
 
 # -- Colors -- #
 
@@ -139,12 +139,14 @@ function view_system_info() {
 
     cpu_name=$(grep -m 1 'model name' /proc/cpuinfo | awk -F: '{ print $2 }' | sed 's/^[ \t]*//')
     total_ram=$(awk '/MemTotal/ { printf "%.2f GB\n", $2 / 1024 / 1024 }' /proc/meminfo)
+    gpu_info=$(lspci | grep -i 'vga\|3d\|2d' | awk -F': ' '{print $2}' | grep -v "3d" | sed 's/ (rev .*//')
     kernel_version=$(uname -r)
     custom_banner_text "${yellow} --> Informacion del sistema <-- ${resetStyle}"
     echo -e "\n${white}- CPU: ${cyan}$cpu_name ${resetStyle}"
     echo -e "${white}- RAM: ${cyan}$total_ram ${resetStyle}"
+    echo -e "${white}- GPU: ${cyan}$gpu_info ${resetStyle}"
     echo -e "${white}- Kernel Version: ${cyan}$kernel_version ${resetStyle}"
-
+    echo -e "${white}- Distro: ${cyan}$XDG_CURRENT_DESKTOP $(plasmashell --version | awk '{print $2}') ($XDG_SESSION_TYPE) ${resetStyle}"
     echo -e "\n\nPresiona una tecla para continuar"
     read -n 1 -s -r -p ""
     clear
@@ -199,98 +201,105 @@ function apply_grub_themes () {
         echo -e "${yellow}Tema actual: Ninguno${resetStyle}"
     fi
 
-    echo -e "\n${purple}A continuacion se muestran los temas disponibles para instalar con este script, al seleccionar uno no se te instalara directamente, primero te mostrara opciones como 'instalarlo' o 'eliminarlo'. ${resetStyle}\n"; sleep 1
+    echo -e "\n${purple}A continuacion se muestran los temas disponibles para instalar con este script, al seleccionar uno no se te instalara directamente, primero te mostrara opciones como 'instalarlo' o 'eliminarlo'. ${resetStyle}\n"
     echo -e "(1) ${cyan}bsol (Pantalla azul de la muerte de windows)${resetStyle}"
     echo -e "(2) ${cyan}oldbios (Estilo las BIOS antiguas)${resetStyle}"
+    echo -e "(m) ${cyan}Volver al menu principal${resetStyle}"
 
-    echo -e "\n¿Cual quieres modificar?" 
+
+    echo -e "\n¿Cual quieres modificar?"
 
     while true; do
-            read -r -p "fedora(theme) >> " opt
-            case $opt in 
-                1)
-                    clear
-                    echo -e "${cyan}Tema seleccionado: bsol - Acciónes: instalar(i) | Eliminar(d) | Volver: (r) ${resetStyle}\n"
-                    echo -e "${cyan}Instalar${resetStyle}"
-                    echo -e "${cyan}Eliminar${resetStyle}"
-                    read -r -p "fedorafresh(theme) >> " opt
-                    if [[ $opt == "i" ]]; then
-                        echo -e "${cyan}Instalando tema...${resetStyle}"; sleep 1
-                        sudo cp -r themes/grub/bsol /boot/grub2/themes/
 
-                        if grep -q '^GRUB_THEME=' /etc/default/grub; then
-                            echo -e "${red}¡Advertencia! Ya hay un tema configurado en GRUB_THEME.${resetStyle}"
-                            read -r -p "¿Deseas reemplazar el tema existente? (s/n): " replace
+        read -r -p "fedora(theme) >> " opt
+        case $opt in 
+            1)
+                clear
+                echo -e "${cyan}Tema seleccionado: bsol - Acciónes: instalar(i) | Eliminar(d) | Volver: (r) ${resetStyle}\n"
+                echo -e "${cyan}Instalar${resetStyle}"
+                echo -e "${cyan}Eliminar${resetStyle}"
+                read -r -p "fedorafresh(theme) >> " opt
+                if [[ $opt == "i" ]]; then
+                    echo -e "${cyan}Instalando tema...${resetStyle}"; sleep 1
+                    sudo cp -r themes/grub/bsol /boot/grub2/themes/
 
-                            if [[ $replace == "s" ]]; then
-                                sudo sed -i 's|^GRUB_THEME=.*|GRUB_THEME="/boot/grub2/themes/bsol/theme.txt"|' /etc/default/grub
-                            else
-                                echo -e "${cyan}Manteniendo el tema existente.${resetStyle}"
-                                return
-                            fi
-                    else
-                        echo 'GRUB_THEME="/boot/grub2/themes/bsol/theme.txt"' | sudo tee -a /etc/default/grub
-                    fi
+                    if grep -q '^GRUB_THEME=' /etc/default/grub; then
+                        echo -e "${red}¡Advertencia! Ya hay un tema configurado en GRUB: ${theme_name}.${resetStyle}"
+                        read -r -p "¿Deseas reemplazar el tema existente? (s/n): " replace
 
+                        if [[ $replace == "s" ]]; then
+                            sudo sed -i 's|^GRUB_THEME=.*|GRUB_THEME="/boot/grub2/themes/bsol/theme.txt"|' /etc/default/grub
+                        else
+                            echo -e "${cyan}Manteniendo el tema existente.${resetStyle}"
+                            return
+                        fi
+                else
+                    echo 'GRUB_THEME="/boot/grub2/themes/bsol/theme.txt"' | sudo tee -a /etc/default/grub
+                fi
+
+                sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+                echo -e "\n${cyan}--> Tema bsol instalado <-- $(msg_ok)${resetStyle}"
+
+                elif [[ $opt  == "d" ]]; then
+                    echo -e "${cyan}Eliminando tema...${resetStyle}"
+                    sudo rm -rf /boot/grub2/themes/bsol
+                    sudo sed -i '/^GRUB_THEME=/d' /etc/default/grub
                     sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-
-                    elif [[ $opt  == "d" ]]; then
-                        echo -e "${cyan}Eliminando tema...${resetStyle}"
-                        sudo rm -rf /boot/grub2/themes/bsol
-                        sudo sed -i '/^GRUB_THEME=/d' /etc/default/grub
-                        sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-                        echo -e "\n${cyan}Tema bsol eliminado $(msg_ok)${resetStyle}"; sleep 2
-                    elif [[ $opt  == "r" ]]; then
-                        apply_grub_themes
-                    fi
-                    ;;
-                2)
-                    clear
-                    echo -e "${cyan}Tema seleccionado: OldBIOS - Acciónes: instalar(i) | Eliminar(d) | Volver: (r) ${resetStyle}\n"
-                    echo -e "${cyan}Instalar${resetStyle}"
-                    echo -e "${cyan}Eliminar${resetStyle}"
-                    read -r -p "fedorafresh(theme) >> " opt
-                    if [[ $opt == "i" ]]; then
-                        echo -e "${cyan}Instalando tema...${resetStyle}"; sleep 1
-                        sudo cp -r themes/grub/OldBIOS/ /boot/grub2/themes/
-
-                        if grep -q '^GRUB_THEME=' /etc/default/grub; then
-                            echo -e "${red}¡Advertencia! Ya hay un tema configurado en GRUB_THEME.${resetStyle}"
-                            read -r -p "¿Deseas reemplazar el tema existente? (s/n): " replace
-
-                            if [[ $replace == "s" ]]; then
-                                sudo sed -i 's|^GRUB_THEME=.*|GRUB_THEME="/boot/grub2/themes/OldBIOS/theme.txt"|' /etc/default/grub
-                            else
-                                echo -e "${cyan}Manteniendo el tema existente.${resetStyle}"
-                                return
-                            fi
-                    else
-                        echo 'GRUB_THEME="/boot/grub2/themes/OldBIOS/theme.txt"' | sudo tee -a /etc/default/grub
-                    fi
-                    
-                    sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-
-                    elif [[ $opt  == "d" ]]; then
-                        echo -e "${cyan}Eliminando tema...${resetStyle}"
-                        sudo rm -rf /boot/grub2/themes/OldBIOS/
-                        sudo sed -i '/^GRUB_THEME=/d' /etc/default/grub
-                        sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-                        echo -e "\n${cyan}Tema OldBIOS eliminado $(msg_ok)${resetStyle}"; sleep 2
-                    elif [[ $opt  == "r" ]]; then
-                        apply_grub_themes
-                    fi
-                    ;;
-                0)
-                    exit 0
-                    ;;
-                *) 
-                    echo -e "\n${red}[!] Opción no válida${resetStyle}"
-                    echo -e "\nPresiona una tecla para continuar"
-                    read -n 1 -s -r -p ""
-                    clear
+                    echo -e "\n${cyan}--> Tema bsol eliminado <--$(msg_ok)${resetStyle}"; sleep 2
+                elif [[ $opt  == "r" ]]; then
                     apply_grub_themes
-                    ;;
-            esac
-    done
+                fi
+                ;;
+            2)
+                clear
+                echo -e "${cyan}Tema seleccionado: OldBIOS - Acciónes: instalar(i) | Eliminar(d) | Volver: (r) ${resetStyle}\n"
+                echo -e "${cyan}Instalar${resetStyle}"
+                echo -e "${cyan}Eliminar${resetStyle}"
+                read -r -p "fedorafresh(theme) >> " opt
+                if [[ $opt == "i" ]]; then
+                    echo -e "${cyan}Instalando tema...${resetStyle}"; sleep 1
+                    sudo cp -r themes/grub/OldBIOS/ /boot/grub2/themes/
 
+                    if grep -q '^GRUB_THEME=' /etc/default/grub; then
+                        echo -e "${red}¡Advertencia! Ya hay un tema configurado en GRUB_THEME.${resetStyle}"
+                        read -r -p "¿Deseas reemplazar el tema existente? (s/n): " replace
+
+                        if [[ $replace == "s" ]]; then
+                            sudo sed -i 's|^GRUB_THEME=.*|GRUB_THEME="/boot/grub2/themes/OldBIOS/theme.txt"|' /etc/default/grub
+                        else
+                            echo -e "${cyan}Manteniendo el tema existente.${resetStyle}"
+                            return
+                        fi
+                else
+                    echo 'GRUB_THEME="/boot/grub2/themes/OldBIOS/theme.txt"' | sudo tee -a /etc/default/grub
+                fi
+                    
+                sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+                echo -e "\n${cyan}--> Tema OldBIOS instalado <--$(msg_ok)${resetStyle}"
+
+                elif [[ $opt  == "d" ]]; then
+                    echo -e "${cyan}Eliminando tema...${resetStyle}"
+                    sudo rm -rf /boot/grub2/themes/OldBIOS/
+                    sudo sed -i '/^GRUB_THEME=/d' /etc/default/grub
+                    sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+                    echo -e "\n${cyan}--> Tema OldBIOS eliminado <--$(msg_ok)${resetStyle}"; sleep 2
+                elif [[ $opt  == "r" ]]; then
+                    apply_grub_themes
+                fi
+                ;;
+            m)  
+                main
+                ;;
+            0)
+                exit 0
+                ;;
+            *) 
+                echo -e "\n${red}[!] Opción no válida${resetStyle}"
+                echo -e "\nPresiona una tecla para continuar"
+                read -n 1 -s -r -p ""
+                clear
+                apply_grub_themes
+                ;;
+        esac
+    done
 }
