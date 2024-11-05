@@ -36,7 +36,10 @@ Entra
 
 `cd FedoraFresh`
 
-Asigna permisos de ejecucion al script y ejecutalo:
+Asigna permisos de ejecucion al script:
 
-`chmod +x install.sh`<br>
+`chmod +x fedorafresh.sh`<br>
+
+Ejecutalo con: 
+
 `./install`
