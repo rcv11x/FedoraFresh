@@ -86,7 +86,7 @@ function installation() {
         sudo hostnamectl set-hostname "$opcion"
         install_gpu_drivers
         update_firmware
-        custom_banner_text "\n${purple}--> Instalacion exitosa!, ahora espera de 5 a 10 minutos (en el caso de que tengas una gpu nvidia) ya que se estarán compilando los modulos del kernel, de lo contrario puedes reiniciar\n - El PC se reiniciará automaticamente <--${resetStyle}\n"
+        custom_banner_text "\n${purple}--> Instalacion exitosa!, ahora espera de 5 a 10 minutos (en el caso de que tengas una gpu nvidia) ya que se estarán compilando los modulos del kernel, de lo contrario puedes reiniciar\n - El PC se reiniciará automaticamente en 5 minutos <--${resetStyle}\n"
         shutdown -r +5
     fi
        

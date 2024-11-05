@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "../install.sh"
+source "../fedorafresh.sh"
 
 # -- Colors -- #
 
@@ -21,29 +21,28 @@ current_dir=$(pwd)
 iosevka_repo_url="https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
 
 
-function stop_script() {
+function stop_script () {
     clear
     echo -e "\n${red}[!] Has salido del script \n${resetStyle}"
     exit 1
 }
 
-function msg_ok() {
+function msg_ok () {
     echo -e "\n${red}[${white} OK! ${red}] ${resetStyle}\n"
 }
 
-function custom_banner_text() {
-
-    echo -e "=================================================================================="
-    echo -e "=                                                                                 "
-    echo -e "=   $1                                                                              " 
-    echo -e "=                                                                                 "
-    echo -e "=================================================================================="
+function custom_banner_text () {
+    echo -e "============================================================================================================"
+    echo -e "=                                                                                                           "
+    echo -e "=   $1                                                                                                      " 
+    echo -e "=                                                                                                           "
+    echo -e "============================================================================================================"
 }
 
-function check_rpm_fusion() {
+function check_rpm_fusion () {
     if [[ -f /etc/yum.repos.d/rpmfusion-free.repo || -f /etc/yum.repos.d/rpmfusion-nonfree.repo ]]; then
         echo
-        echo -e "${red}El repositorio de RPM Fusion ya se encuentra instalado.${resetStyle}\n"
+        echo -e "${red}[!] El repositorio de RPM Fusion ya se encuentra instalado.${resetStyle}\n"
         echo -e "$(msg_ok) Omitiendo...\n"
         sleep 1.5
     else
@@ -56,7 +55,7 @@ function check_rpm_fusion() {
     fi
 }
 
-function check_cpu_type() {
+function check_cpu_type () {
 
     if grep -q "Intel" /proc/cpuinfo; then
 
@@ -75,8 +74,7 @@ function check_cpu_type() {
 }
 
 # Instalacion de Codecs Multimedia
-function install_multimedia() {
-
+function install_multimedia () {
     custom_banner_text "${yellow}Instalando codecs multimedia completos para un buen funcionamiento y soporte${resetStyle}"; sleep 2
     check_rpm_fusion
     sudo dnf swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
@@ -93,8 +91,7 @@ function install_multimedia() {
     sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
 }
 
-function install_gpu_drivers() {
-
+function install_gpu_drivers () {
     gpu_info=$(lspci | grep -i 'vga\|3d\|2d' | awk -F': ' '{print $2}' | grep -v "3d" | sed 's/ (rev .*//')
 
     echo "GPUs detectadas:";
@@ -134,9 +131,7 @@ function install_gpu_drivers() {
     done <<< "$gpu_info"
 }
 
-
-function view_system_info() {
-
+function view_system_info () {
     cpu_name=$(grep -m 1 'model name' /proc/cpuinfo | awk -F: '{ print $2 }' | sed 's/^[ \t]*//')
     total_ram=$(awk '/MemTotal/ { printf "%.2f GB\n", $2 / 1024 / 1024 }' /proc/meminfo)
     gpu_info=$(lspci | grep -i 'vga\|3d\|2d' | awk -F': ' '{print $2}' | grep -v "3d" | sed 's/ (rev .*//')
