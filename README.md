@@ -16,6 +16,7 @@ FedoraFresh es un script escrito en Bash para automatizar el proceso de instalac
 
 Iré actualizando y mejorando el script con el tiempo, si tienes dudas puedes preguntarme por discord @rcv11x
 
+![](https://i.imgur.com/Y5DjU2c.png)
 
 ## Uso
 ### 1.
