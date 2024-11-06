@@ -52,8 +52,7 @@ function install_flatpaks() {
     done
 
     custom_banner_text "${yellow} Se han instalado todos los paquetes flatpak ${resetStyle}"
-    echo -e "\n\nPresiona una tecla para continuar"
-    read -n 1 -s -r -p ""
+    press_any_key
     clear
 }
 

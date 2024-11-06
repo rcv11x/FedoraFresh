@@ -23,22 +23,22 @@ current_dir=$(pwd)
 iosevka_repo_url="https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
 
 
-function stop_script () {
+function stop_script() {
     clear
     echo -e "\n${red}[!] Has salido del script \n${resetStyle}"
     exit 1
 }
 
-function msg_ok () {
+function msg_ok() {
     echo -e "\n${red}[${white} OK! ${red}] ${resetStyle}\n"
 }
 
-function press_any_key () {
+function press_any_key() {
     echo -e "\nPresiona una tecla para continuar"
     read -n 1 -s -r -p ""
 }
 
-function custom_banner_text () {
+function custom_banner_text() {
     echo -e "============================================================================================================"
     echo -e "=                                                                                                           "
     echo -e "=   $1                                                                                                      " 
@@ -46,7 +46,7 @@ function custom_banner_text () {
     echo -e "============================================================================================================"
 }
 
-function check_rpm_fusion () {
+function check_rpm_fusion() {
     if [[ -f /etc/yum.repos.d/rpmfusion-free.repo || -f /etc/yum.repos.d/rpmfusion-nonfree.repo ]]; then
         echo
         echo -e "${red}[!] El repositorio de RPM Fusion ya se encuentra instalado.${resetStyle}\n"
@@ -62,7 +62,7 @@ function check_rpm_fusion () {
     fi
 }
 
-function check_cpu_type () {
+function check_cpu_type() {
 
     if grep -q "Intel" /proc/cpuinfo; then
 
@@ -81,7 +81,7 @@ function check_cpu_type () {
 }
 
 # Instalacion de Codecs Multimedia
-function install_multimedia () {
+function install_multimedia() {
     custom_banner_text "${yellow}Instalando codecs multimedia completos para un buen funcionamiento y soporte${resetStyle}"; sleep 2
     check_rpm_fusion
     sudo dnf swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
@@ -98,7 +98,7 @@ function install_multimedia () {
     sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
 }
 
-function install_gpu_drivers () {
+function install_gpu_drivers() {
     gpu_info=$(lspci | grep -i 'vga\|3d\|2d' | awk -F': ' '{print $2}' | grep -v "3d" | sed 's/ (rev .*//')
 
     echo "GPUs detectadas:";
@@ -138,7 +138,7 @@ function install_gpu_drivers () {
     done <<< "$gpu_info"
 }
 
-function view_system_info () {
+function view_system_info() {
     cpu_name=$(grep -m 1 'model name' /proc/cpuinfo | awk -F: '{ print $2 }' | sed 's/^[ \t]*//')
     total_ram=$(awk '/MemTotal/ { printf "%.2f GB\n", $2 / 1024 / 1024 }' /proc/meminfo)
     gpu_info=$(lspci | grep -i 'vga\|3d\|2d' | awk -F': ' '{print $2}' | grep -v "3d" | sed 's/ (rev .*//')
@@ -149,12 +149,11 @@ function view_system_info () {
     echo -e "${white}- GPU: ${cyan}$gpu_info ${resetStyle}"
     echo -e "${white}- Kernel Version: ${cyan}$kernel_version ${resetStyle}"
     echo -e "${white}- Distro: ${cyan}$XDG_CURRENT_DESKTOP $(plasmashell --version | awk '{print $2}') ($XDG_SESSION_TYPE) ${resetStyle}"
-    echo -e "\n\nPresiona una tecla para continuar"
-    read -n 1 -s -r -p ""
+    press_any_key
     clear
 }
 
-function update_firmware () {
+function update_firmware() {
     echo -e "${purple}[!] Buscando actualizaciones de firmware...${resetStyle}"; sleep 1
     sudo fwupdmgr refresh --force
     sudo fwupdmgr get-devices
@@ -162,7 +161,7 @@ function update_firmware () {
     sudo fwupdmgr update
 }
 
-function install_fonts () {
+function install_fonts() {
     echo -e "\n${purple}[!] Descargando e instalando fuentes parcheadas...${resetStyle}\n"; sleep 1.5
     curl -sSL -o ./fonts/Iosevka.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*Iosevka.zip"' | cut -d'"' -f4)"
     curl -sSL -o ./fonts/IosevkaTerm.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*IosevkaTerm.zip"' | cut -d'"' -f4)"
@@ -181,19 +180,19 @@ function install_fonts () {
     sudo fc-cache -v
 }
 
-function install_flatpak () {
+function install_flatpak() {
     echo -e "${purple}[!] Instalando Repositorio de Flatpak...${resetStyle}"; sleep 1.5
     sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     echo -e "$(msg_ok) Listo.\n"
 }
 
-function dnf_hacks () {
+function dnf_hacks() {
     echo -e "\n${purple}[!] Configurando DNF...${resetStyle}\n"; sleep 1.5
     echo "fastestmirror=True" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
     echo "max_parallel_downloads=20" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
 }
 
-function apply_grub_themes () {
+function apply_grub_themes() {
     clear
     current_theme=$(grep '^GRUB_THEME=' /etc/default/grub | cut -d'"' -f2)
     if [[ -n $current_theme ]]; then
@@ -306,7 +305,7 @@ function apply_grub_themes () {
     done
 }
 
-function optimization () {
+function optimization() {
 
     clear
     custom_banner_text "${red} OPTIMIZACION Y LIMPIEZA DE LA DISTRO ${resetStyle}"

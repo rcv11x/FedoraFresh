@@ -89,8 +89,13 @@ function installation() {
         sudo hostnamectl set-hostname "$opcion"
         install_gpu_drivers
         update_firmware
-        custom_banner_text "\n${purple}--> Instalacion exitosa!, ahora espera de 5 a 10 minutos (en el caso de que tengas una gpu nvidia) ya que se estarán compilando los modulos del kernel, de lo contrario puedes reiniciar\n - El PC se reiniciará automaticamente en 5 minutos <--${resetStyle}\n"
-        shutdown -r +5
+        
+        if kdialog --title "Instalacion terminada" --yesno "Instalacion exitosa!\n\n Ahora espera de 5 a 10 minutos (en el caso de que tengas una gpu nvidia) ya que se estarán compilando los modulos del kernel, de lo contrario puedes reiniciar\n - El PC se reiniciará automaticamente en 5 minutos" \
+           --yes-label "Reiniciar ahora" --no-label "Cancelar" 2> /dev/null; then
+            reboot now
+        else
+            shutdown -r +5
+        fi
     fi
        
 }
@@ -132,8 +137,7 @@ function main(){
                     ;;
                 *) 
                     echo -e "\n${red}[!] Opción no válida${resetStyle}"
-                    echo -e "\nPresiona una tecla para continuar"
-                    read -n 1 -s -r -p ""
+                    press_any_key
                     clear
                     ;;
             esac
