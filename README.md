@@ -42,4 +42,4 @@ Asigna permisos de ejecucion al script:
 
 Ejecutalo con: 
 
-`./install`
+`./fedorafresh`
