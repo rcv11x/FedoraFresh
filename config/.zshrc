@@ -124,7 +124,6 @@ alias editterm="nano ~/.config/kitty/kitty.conf"
 alias h='history'
 
 # Functions
-
 function dir_icon {
 	if [[ "$PWD" == "$HOME" ]]; then
 		echo "%B%F{black}%f%b"
@@ -143,8 +142,34 @@ function parse_git_branch {
 
 PROMPT='%F{cyan}󰣇 %f %F{magenta}%n%f $(dir_icon) %F{red}%~%f%${vcs_info_msg_0_} %F{yellow}$(parse_git_branch)%f %(?.%B%F{green}.%F{red})%f%b '
 
-
 # Custom functions
+
+# Buscar proceso y matarlo
+
+function pk() {
+  if [ -z "$1" ]; then
+    echo "Uso: $0 <nombre_proceso> [--kill, -k]"
+    return 1
+  fi
+
+  pid=$(pgrep -i "$1")
+
+  if [ -z "$pid" ]; then
+    echo "No se encontró ningún proceso con el nombre '$1'."
+    exit 1
+  else
+    echo "PID del proceso '$1': $pid"
+  fi
+
+  if [ "$2" = "--kill" ] || [ "$2" = "-k" ]; then
+    kill "$pid"
+    if [ $? -eq 0 ]; then
+      echo "Proceso '$1' (PID: $pid) terminado."
+    else
+      echo "No se pudo terminar el proceso '$1'."
+    fi
+  fi
+}
 
 # -- Descargar musica de yt en alta calidad -- #
 
@@ -172,7 +197,6 @@ function ytvideo(){
     fi
 
     if [ $# -eq 2 ]; then
-        
         mkdir -p "$2"
         yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 -o "$2/%(title)s.%(ext)s" "$1"
     else
