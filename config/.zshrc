@@ -156,7 +156,7 @@ function pk() {
 
   if [ -z "$pid" ]; then
     echo "No se encontró ningún proceso con el nombre '$1'."
-    exit 1
+    return 1
   else
     echo "PID del proceso '$1': $pid"
   fi
