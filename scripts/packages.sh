@@ -20,7 +20,7 @@ function install_flatpaks() {
     echo -e "\n${purple}[!] Instalando paquetes flatpak...${resetStyle}\n"; sleep 2
 
     flatpak_packages=(
-        com.mojang.Minecraft # --> Launcher de Minecraft
+        org.prismlauncher.PrismLauncher # --> Launcher de Minecraft
         # com.spotify.Client # --> Cliente de Spotify
         com.github.wwmm.easyeffects # --> Efectos de audio y equalizador para pipewire
         com.visualstudio.code # --> Editor de codigo Visual Studio Code
@@ -72,6 +72,9 @@ dnf_packages=(
         bat
         timeshift
         wine
+        kdenlive
+        krita
+        yt-dlp
         # Programas y utilidades para juegos
         steam
         mangohud
@@ -85,8 +88,6 @@ dnf_packages=(
         thunderbird
         # VPN
         wireguard-tools
-        kdenlive
-        krita
-        yt-dlp
+        # openvpn
 
     )

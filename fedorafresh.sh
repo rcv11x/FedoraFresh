@@ -103,7 +103,7 @@ function installation() {
 function main(){
     clear
     if [[ $(id -u) = 0 || $(whoami) = "root" ]]; then
-        echo -e "\n${red}[!] Ejecuta el script sin sudo\n${resetStyle}"
+        echo -e "\n${red}[!] Ejecuta el script sin permisos de sudo\n${resetStyle}"
         exit 1
     else
         while true; do
