@@ -57,7 +57,7 @@ function check_rpm_fusion() {
         custom_banner_text "${yellow}Añadiendo el repositorio de RPM Fusion...${resetStyle}"
         sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-"$(rpm -E %fedora)".noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"$(rpm -E %fedora)".noarch.rpm > /dev/null 2>&1
         sudo dnf check-update
-        sudo dnf group update -y core
+        sudo dnf group upgrade -y core
         echo -e "$(msg_ok) Listo.\n"
         sleep 1.5
     fi
