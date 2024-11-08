@@ -56,6 +56,7 @@ function check_rpm_fusion() {
         echo
         custom_banner_text "${yellow}Añadiendo el repositorio de RPM Fusion...${resetStyle}"
         sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-"$(rpm -E %fedora)".noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"$(rpm -E %fedora)".noarch.rpm > /dev/null 2>&1
+        sudo dnf check-update
         sudo dnf group update -y core
         echo -e "$(msg_ok) Listo.\n"
         sleep 1.5
@@ -85,9 +86,8 @@ function install_multimedia() {
     custom_banner_text "${yellow}Instalando codecs multimedia completos para un buen funcionamiento y soporte${resetStyle}"; sleep 2
     check_rpm_fusion
     sudo dnf swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
-    # sudo dnf group install -y Multimedia
     sudo dnf update -y @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
-    sudo dnf install -y sound-and-video
+    sudo dnf install -y @sound-and-video
     sudo dnf update -y @sound-and-video
     sleep 2
     echo -e "\n${purple}[!] Instalando codecs para la Decodificacion de Video...${resetStyle}\n"
@@ -111,7 +111,7 @@ function install_gpu_drivers() {
             *nvidia*)
                 echo -e "\n${purple}[!] Se ha detectado una GPU NVIDIA en el sistema. Instalando drivers propietarios...${resetStyle}\n"
                 sleep 2
-                sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda || {
+                sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda libva-nvidia-driver || {
                     echo -e "${red}[!] Error al instalar los drivers de NVIDIA.${resetStyle}\n"
                     return 1
                 }
@@ -183,7 +183,7 @@ function install_fonts() {
 function install_flatpak() {
     echo -e "${purple}[!] Instalando Repositorio de Flatpak...${resetStyle}"; sleep 1.5
     sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-    echo -e "$(msg_ok) Listo.\n"
+    echo -e "$(msg_ok)\n"
 }
 
 function dnf_hacks() {

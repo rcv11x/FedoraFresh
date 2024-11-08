@@ -76,14 +76,7 @@ function installation() {
         cp -rv config/.icons/* "$HOME/.icons/"
         cp -rv wallpapers/ "$HOME/Imágenes/"
         kwriteconfig6 --file "$HOME"/.config/kcminputrc --group Mouse --key cursorTheme "Bibata-Modern-Ice"
-        # kwriteconfig6 --file kglobalshortcutsrc --group "services" --key "_launch[kitty.desktop]" "Meta+Return"
-        # kwriteconfig6 --file kglobalshortcutsrc --group "services" --key "_launch[org.kde.konsole.desktop]" "none"
-        # kwriteconfig6 --file kglobalshortcutsrc --group "services" --key "_launch[org.kde.dolphin.desktop]" "Meta+F"
-        # kwriteconfig6 --file kglobalshortcutsrc --group "services" --key "ActiveWindowScreenShot[org.kde.spectacle.desktop]" "Meta+Print\tAlt+1"
-        # kwriteconfig6 --file kglobalshortcutsrc --group "services" --key "RectangularRegionScreenShot[org.kde.spectacle.desktop]" "Meta+Shift+Print\tAlt+3"
-        # kwriteconfig6 --file ~/.config/kcminputrc --group Mouse --key PointerAccelerationProfile "0"
-        # kwriteconfig6 --file ~/.config/kwinrc --group Plugins --key shakecursorEnabled false
-        plasma-apply-wallpaperimage "/home/$USER/Imágenes/wallpapers/1080p/wallhaven-l81qoy_1920x1080.png"
+        plasma-apply-wallpaperimage "/home/$USER/Imágenes/wallpapers/1080p/203897-final.png"
         echo -e "\n${purple}[!] Estableciendo un nombre de HOST para la maquina ¿Que nombre le quieres poner? Ej. (mipc, pc-juan...)${resetStyle}\n"
         read -r -p "Hostname: " opcion
         sudo hostnamectl set-hostname "$opcion"
@@ -92,9 +85,9 @@ function installation() {
         
         if kdialog --title "Instalacion terminada" --yesno "Instalacion exitosa!\n\n Ahora espera de 5 a 10 minutos (en el caso de que tengas una gpu nvidia) ya que se estarán compilando los modulos del kernel, de lo contrario puedes reiniciar\n - El PC se reiniciará automaticamente en 5 minutos" \
            --yes-label "Reiniciar ahora" --no-label "Cancelar" 2> /dev/null; then
-            reboot now
+            sudo shutdown now
         else
-            shutdown -r +5
+            sudo shutdown -r +5
         fi
     fi
        
