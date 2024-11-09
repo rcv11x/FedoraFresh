@@ -33,7 +33,7 @@ function menu() {
 function installation() {
     clear
     custom_banner_text "${yellow} A continuacion se va a ejecutar el script de instalacion ¿Seguro que quieres continuar? [yY/nN]${default}";
-    read -r -p "fedorafresh >> " yesno
+    read -r -p "${prompt}" yesno
     if [[ $yesno == "n" || $yesno == "N" ]]; then
         clear
         main
@@ -105,7 +105,7 @@ function main(){
             show_banner
             menu
 
-            read -r -p "fedorafresh >> " opcion
+            read -r -p "${prompt}" opcion
             case $opcion in 
                 1)
                     installation

@@ -16,6 +16,7 @@ yellow="\e[0;33m"
 purple="\e[0;35m"
 white="\e[0;37m"
 black="\e[0;30m"
+prompt=" fedorafresh >> "
 
 fedora_version=$(cat /etc/os-release | grep -i "VERSION_ID" | awk -F'=' '{print $2}')
 fedora_variant=$(cat /etc/os-release | grep -w "VARIANT" | awk -F'=' '{print $2}' | sed 's/"//g')
@@ -212,14 +213,14 @@ function apply_grub_themes() {
 
     while true; do
 
-        read -r -p "fedora(theme) >> " opt
+        read -r -p "${prompt}" opt
         case $opt in 
             1)
                 clear
                 echo -e "${cyan}Tema seleccionado: bsol - Acciónes: instalar(i) | Eliminar(d) | Volver: (r) ${default}\n"
                 echo -e "${cyan}Instalar${default}"
                 echo -e "${cyan}Eliminar${default}"
-                read -r -p "fedorafresh(theme) >> " opt
+                read -r -p "${prompt}" opt
                 if [[ $opt == "i" ]]; then
                     echo -e "${cyan}Instalando tema...${default}"; sleep 1
                     sudo cp -r themes/grub/bsol /boot/grub2/themes/
@@ -256,7 +257,7 @@ function apply_grub_themes() {
                 echo -e "${cyan}Tema seleccionado: OldBIOS - Acciónes: instalar(i) | Eliminar(d) | Volver: (r) ${default}\n"
                 echo -e "${cyan}Instalar${default}"
                 echo -e "${cyan}Eliminar${default}"
-                read -r -p "fedorafresh(theme) >> " opt
+                read -r -p "${prompt}" opt
                 if [[ $opt == "i" ]]; then
                     echo -e "${cyan}Instalando tema...${default}"; sleep 1
                     sudo cp -r themes/grub/OldBIOS/ /boot/grub2/themes/
@@ -310,7 +311,7 @@ function optimization() {
     clear
     custom_banner_text "${red} OPTIMIZACION Y LIMPIEZA DE LA DISTRO ${default}"
     echo -e "\n- Se le hará alguna pregunta y tendrá que responder con y/N ¿Continuar?\n"
-    read -r -p "fedorafresh(optimization) >> " opt
+    read -r -p "${prompt}" opt
     opt=${opt:-N}
     if [[ "$opt" =~ ^[Yy]$ ]]; then
         clear
@@ -368,7 +369,7 @@ function optimization() {
 function install_xbox_controllers() {
 
     echo -e "${yellow} A continuacion se van instalar los controladores necesarios para que funcionen correctamente los mandos de Xbox (360, One, One X/S) tanto cableados como por bluetooth\n\n${default}- [!] Para ello es importante tener en cuenta que si tienes habilitado el Secure Boot (Modo seguro) es posible que no se instalen correctamente los drivers para los mandos inalambricos ya que no estan firmados ¿Quieres continuar y empezar la instalacion? [yY/nN]\n${default}";
-    read -r -p "fedorafresh >> " yesno
+    read -r -p "${prompt}" yesno
     if [[ $yesno == "n" || $yesno == "N" ]]; then
         clear
         main
