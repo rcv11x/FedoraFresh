@@ -17,7 +17,7 @@ source "../scripts/utils.sh"
 
 function install_flatpaks() {
 
-    echo -e "\n${purple}[!] Instalando paquetes flatpak...${resetStyle}\n"; sleep 2
+    echo -e "\n${purple}[!] Instalando paquetes flatpak...${default}\n"; sleep 2
 
     flatpak_packages=(
         org.prismlauncher.PrismLauncher # --> Launcher de Minecraft
@@ -51,7 +51,7 @@ function install_flatpaks() {
         flatpak install flathub -y "$package"
     done
 
-    custom_banner_text "${yellow} Se han instalado todos los paquetes flatpak ${resetStyle}"
+    custom_banner_text "${yellow} Se han instalado todos los paquetes flatpak ${default}"
     press_any_key
     clear
 }
