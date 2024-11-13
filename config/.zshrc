@@ -124,25 +124,42 @@ alias editterm="nano ~/.config/kitty/kitty.conf"
 alias h='history'
 
 # Functions
+function detect_distro_icon(){
+        distro_name=$(cat /etc/os-release | grep -w "ID" | awk -F'=' '{print $2}' | sed 's/"//g')
+        if [[ $distro_name == "fedora" ]]; then
+                echo ""
+        elif [[ $distro_name == "arch" ]]; then
+                echo ""
+        elif [[ $distro_name == "ubuntu" ]]; then
+                echo ""
+        elif [[ $distro_name == "debian" ]]; then
+                echo ""
+        elif [[ $distro_name == "mint" ]]; then
+                echo "󰣭"
+        else
+            	echo "󰌽"
+        fi
+}
+
 function dir_icon {
-	if [[ "$PWD" == "$HOME" ]]; then
-		echo "%B%F{black}%f%b"
-	else
-		echo "%B%F{cyan}%f%b"
-	fi
+        if [[ $(id -u) -eq 0 ]]; then
+                echo "%B%F{yellow}󰈸%f%b"
+        elif [[ "$PWD" == "$HOME" ]]; then
+                echo "%B%F{white}%f%b"
+        else
+            	echo "%B%F{cyan}%f%b"
+        fi
 }
 
 function parse_git_branch {
-	local branch
-	branch=$(git symbolic-ref --short HEAD 2> /dev/null)
-	if [ -n "$branch" ]; then
-		echo " [$branch]"
-	fi
+        local branch
+        branch=$(git symbolic-ref --short HEAD 2> /dev/null)
+        if [ -n "$branch" ]; then
+                echo " [$branch]"
+        fi
 }
 
-PROMPT='%F{cyan} %f %F{magenta}%n%f $(dir_icon) %F{red}%~%f%${vcs_info_msg_0_} %F{yellow}$(parse_git_branch)%f %(?.%B%F{green}.%F{red})%f%b '
-
-# Custom functions
+PROMPT='%F{cyan}$(detect_distro_icon) %f %F{magenta}%n%f $(dir_icon) %F{red}%~%f%${vcs_info_msg0} %F{yellow}$(parse_git_branch)%f %(?.%B%F{green}.%F{red})%f%b '
 
 # Buscar proceso y matarlo
 

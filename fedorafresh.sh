@@ -63,13 +63,19 @@ function installation() {
         echo -e "$(msg_ok) Listo.\n"
 
         # -- CONFIGURACION -- #
-        echo -e "\n${purple}[!] Instalando plugins para la ZSH...${default}\n"
+        echo -e "\n${purple}[!] Instalando plugins de ZSH para $USER y root...${default}\n"
         sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended; sleep 2
+        sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
         git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
         git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+        sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+        sudo git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
         sudo chsh -s "$(which zsh)" "$USER"
+        sudo chsh -s "$(which zsh)" root
         rm -rf "$HOME/.zshrc"
         cp -rv config/.zshrc "$HOME"
+        sudo rm -rf /root/.zshrc
+        sudo ln -sfv ~/.zshrc /root/.zshrc
         cp -rv config/kitty/* "$HOME/.config/kitty"
         sleep 2
         install_fonts
