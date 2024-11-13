@@ -143,11 +143,17 @@ function detect_distro_icon(){
 
 function dir_icon {
         if [[ $(id -u) -eq 0 ]]; then
-                echo "%B%F{yellow}󰈸%f%b"
-        elif [[ "$PWD" == "$HOME" ]]; then
-                echo "%B%F{white}%f%b"
-        else
-            	echo "%B%F{cyan}%f%b"
+			if [[ "$PWD" == "$HOME" ]]; then
+					echo "%B%F{yellow}󰈸%f%b -> %B%F{white}%f%b"
+			else
+				echo "%B%F{yellow}󰈸%f%b"
+			fi
+		elif [[ $(id -u) = 1000 ]]; then 
+			if [[ "$PWD" == "$HOME" ]]; then
+				echo "%B%F{white}%f%b -> %B%F{white}%f%b"
+			else
+				echo "%B%F{white}%f%b"
+			fi
         fi
 }
 
@@ -155,7 +161,7 @@ function parse_git_branch {
         local branch
         branch=$(git symbolic-ref --short HEAD 2> /dev/null)
         if [ -n "$branch" ]; then
-                echo " [$branch]"
+                echo " ($branch)"
         fi
 }
 
