@@ -83,7 +83,7 @@ function installation() {
         cp -rv config/.icons/* "$HOME/.icons/"
         cp -rv wallpapers/ "$HOME/Imágenes/"
         kwriteconfig6 --file "$HOME"/.config/kcminputrc --group Mouse --key cursorTheme "Bibata-Modern-Ice"
-        plasma-apply-wallpaperimage "/home/$USER/Imágenes/wallpapers/1080p/203897-final.png"
+        plasma-apply-wallpaperimage "/home/$USER/Imágenes/wallpapers/4k/250345-final.png"
         echo -e "\n${purple}[!] Estableciendo un nombre de HOST para la maquina ¿Que nombre le quieres poner? Ej. (mipc, pc-juan...)${default}\n"
         read -r -p "Hostname: " opcion
         sudo hostnamectl set-hostname "$opcion"

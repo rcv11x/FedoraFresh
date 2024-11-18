@@ -87,6 +87,7 @@ function install_multimedia() {
     custom_banner_text "${yellow}Instalando codecs multimedia completos para un buen funcionamiento y soporte${default}"; sleep 2
     check_rpm_fusion
     sudo dnf swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
+    sudo dnf group install -y multimedia
     sudo dnf update -y @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
     sudo dnf install -y @sound-and-video
     sudo dnf update -y @sound-and-video
