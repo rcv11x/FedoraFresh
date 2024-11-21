@@ -1,0 +1,11 @@
+set linenumbers
+set tabsize 4
+set autoindent
+set nowrap
+set locking
+set mouse
+set numbercolor yellow
+set titlecolor white,black
+
+# Better Syntaxis
+include "~/.nano/*.nanorc"

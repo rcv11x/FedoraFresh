@@ -144,13 +144,21 @@ function detect_distro_icon(){
 function dir_icon {
         if [[ $(id -u) -eq 0 ]]; then
 			if [[ "$PWD" == "$HOME" ]]; then
-					echo "%B%F{yellow}󰈸%f%b -> %B%F{white}%f%b"
+					echo "%B%F{yellow}󰈸%f%b  %B%F{white}󰚊 %f%b"
+			elif [[ "$PWD" == "/etc" ]]; then
+					echo "%B%F{yellow}󰈸%f%b  %B%F{white} %f%b"
+			elif [[ "$PWD" == /home* ]]; then
+					echo "%B%F{yellow}󰈸%f%b  %B%F{white}󰷌 %f%b"
 			else
 				echo "%B%F{yellow}󰈸%f%b"
 			fi
-		elif [[ $(id -u) = 1000 ]]; then 
-			if [[ "$PWD" == "$HOME" ]]; then
-				echo "%B%F{white}%f%b -> %B%F{white}%f%b"
+		elif [[ $(id -u) = 1000 ]]; then
+			if [[ "$PWD" == $HOME ]]; then
+				echo "%B%F{white}%f%b  %B%F{white}󰚊 %f%b"
+			elif [[ "$PWD" == /etc* ]]; then
+					echo "%B%F{white}%f%b  %B%F{white} %f%b"
+			elif [[ "$PWD" == /root* ]]; then
+					echo "%B%F{white}%f%b  %B%F{white}󰉐 %f%b"
 			else
 				echo "%B%F{white}%f%b"
 			fi
@@ -202,7 +210,7 @@ function ytmusic(){
 		return
 	fi
 
-	if [ $# -eq 2 ]; then	
+	if [ $# -eq 2 ]; then
         mkdir -p "$2"
         yt-dlp --audio-quality --audio-format --extract-audio -x -f bestaudio -o "$2/%(title)s.%(ext)s" "$1"
     else
@@ -270,11 +278,11 @@ function tra() {
     		echo "Usa: $funcstack[1] <frase>"
     		return
 	fi
-	
+
 	echo -e "Texto original:\n$*"
-	
+
 	echo -e "\nTraducción:\n"
-	trans -b :es "$*"	
+	trans -b :es "$*"
 
 }
 
