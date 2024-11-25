@@ -76,7 +76,10 @@ function installation() {
         cp -rv config/.zshrc "$HOME"
         sudo rm -rf /root/.zshrc
         sudo ln -sfv ~/.zshrc /root/.zshrc
+        echo -e "\n${purple}[!] Configurando Kitty y Nano...${default}\n"
         cp -rv config/kitty/* "$HOME/.config/kitty"
+        cp -rv config/.nano "$HOME"
+        cp -rv config/.nanorc "$HOME"
         sleep 2
         install_fonts
         echo -e "\n${purple}[!] Aplicando temas de mouse, wallpaper y otras configuraciones...${default}\n"
