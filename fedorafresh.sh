@@ -4,7 +4,8 @@
 # Licencia: MIT
 
 source "scripts/utils.sh"
-source "scripts/packages.sh"
+source "scripts/dnf_pkgs.sh"
+source "scripts/flatpak_pkgs.sh"
 
 trap stop_script INT
 
@@ -22,7 +23,7 @@ function show_banner() {
 function menu() {
 
     echo -e "(1) ${cyan}Instalar FedoraFresh${default}"
-    echo -e "(2) ${cyan}Instalar Flatpak's${default}"
+    echo -e "(2) ${cyan}Instalar lista de paquetes Flatpak${default}"
     echo -e "(3) ${cyan}Aplicar temas GRUB${default}"
     echo -e "(4) ${cyan}Limpiar y Optimizar distro${default}"
     echo -e "(5) ${cyan}Instalar drivers para mandos Xbox${default}"
@@ -32,6 +33,7 @@ function menu() {
 
 function installation() {
     clear
+    check_deps
     custom_banner_text "${yellow} A continuacion se va a ejecutar el script de instalacion ¿Seguro que quieres continuar? [yY/nN]${default}";
     read -r -p "${prompt}" yesno
     if [[ $yesno == "n" || $yesno == "N" ]]; then

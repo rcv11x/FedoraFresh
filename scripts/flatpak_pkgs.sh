@@ -7,12 +7,9 @@ source "../scripts/utils.sh"
 
 ############################################################################################################
 #
-#  La primera lista son paquetes flatpak
-#  La segunda lista son paquetes dnf (sistema)
-#
 #  Si hay algun paquete de ambas listas que no le interesa simplemente comentelo con una amoadila '#'
 #
-#  [!] también puede agregar mas paquetes
+#  [!] también puede agregar mas paquetes si lo desea
 ############################################################################################################
 
 function install_flatpaks() {
@@ -39,6 +36,8 @@ function install_flatpaks() {
         com.github.tchx84.Flatseal # --> Administrador de permisos de Flatpak 
         io.gitlab.theevilskeleton.Upscaler # --> Mejora imagenes a una resolucion mayor o menor
         com.github.unrud.VideoDownloader # --> Descarga videos de youtube o otra web de forma facil
+        com.usebottles.bottles # --> Administracion de wine, ejecutar facilmente juegos y aplicaciones windows
+        net.davidotek.pupgui2 # --> Administrador de versiones de proton
         # -- Emuladores -- #
         net.rpcs3.RPCS3 # --> Emulador de PS3
         org.DolphinEmu.dolphin-emu # --> Emulador de Wii y Gamecube
@@ -56,38 +55,3 @@ function install_flatpaks() {
     clear
 }
 
-dnf_packages=(
-        # Esenciales
-        vim
-        git
-        curl
-        wget
-        htop
-        btop
-        fastfetch
-        lm_sensors
-        kitty
-        zsh
-        lsd
-        bat
-        timeshift
-        wine
-        kdenlive
-        krita
-        yt-dlp
-        # Programas y utilidades para juegos
-        steam
-        mangohud
-        goverlay
-        nvtop
-        # Soporte archivos comprimidos (extraer, comprimir...)
-        unzip
-        p7zip
-        p7zip-plugins
-        unrar
-        thunderbird
-        # VPN
-        wireguard-tools
-        # openvpn
-
-    )

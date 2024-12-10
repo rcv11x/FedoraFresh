@@ -47,6 +47,27 @@ function custom_banner_text() {
     echo -e "============================================================================================================"
 }
 
+function check_deps() {
+
+    if ls /usr/local/share/fonts/custom-fonts/IosevkaTermNerdFont-*.ttf 1> /dev/null 2>&1; then
+        echo -e "\n${green}✓ ${default}Fuentes parcheadas encontradas!"; sleep 1
+    else
+        echo -e "\n${red}✗ ${default} No se ha encontrado las fuentes parcheadas. Instalandolas...\n"
+        curl -sSL -o ./fonts/IosevkaTerm.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*IosevkaTerm.zip"' | cut -d'"' -f4)" 2> /dev/null
+        sudo unzip -o "./fonts/$font" -d /usr/local/share/fonts/custom
+        rm -rf ./fonts
+        echo -e "\n${green}✓ ${default}Fuentes instaladas!"; sleep 1
+    fi
+
+    if [ "$(mokutil --sb-state | awk '{print $2}')" = "enabled" ]; then
+        echo -e "${yellow} ⚠ ${default}Secure boot habilitado${default}"; sleep 1
+    else
+        echo -e "${yellow} ⚠ ${default}Secure boot deshabilitado${default}"; sleep 1
+    fi
+
+    ./fedorafresh.sh
+}
+
 function check_rpm_fusion() {
     if [[ -f /etc/yum.repos.d/rpmfusion-free.repo || -f /etc/yum.repos.d/rpmfusion-nonfree.repo ]]; then
         echo
@@ -151,12 +172,13 @@ function view_system_info() {
     echo -e "${white}- GPU: ${cyan}$gpu_info ${default}"
     echo -e "${white}- Kernel Version: ${cyan}$kernel_version ${default}"
     echo -e "${white}- Distro: ${cyan}$XDG_CURRENT_DESKTOP $(plasmashell --version | awk '{print $2}') ($XDG_SESSION_TYPE) ${default}"
+    echo -e "${white}- Secure boot: ${cyan}$(mokutil --sb-state | awk '{print $2}')"
     press_any_key
     clear
 }
 
 function update_firmware() {
-    echo -e "${purple}[!] Buscando actualizaciones de firmware...${default}"; sleep 1
+    echo -e "${purple}[!] Buscando actualizaciones de firmware disponibles...${default}"; sleep 1
     sudo fwupdmgr refresh --force
     sudo fwupdmgr get-devices
     sudo fwupdmgr get-updates
@@ -190,8 +212,7 @@ function install_flatpak() {
 
 function dnf_hacks() {
     echo -e "\n${purple}[!] Configurando DNF...${default}\n"; sleep 1.5
-    echo "fastestmirror=True" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
-    echo "max_parallel_downloads=20" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
+    echo "max_parallel_downloads=10" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
 }
 
 function apply_grub_themes() {
@@ -375,43 +396,47 @@ function install_xbox_controllers() {
         clear
         main
     elif [[ $yesno == "y" || $yesno == "Y" ]]; then
-        if [[ -f /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:sentry:xone.repo || -f /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:sentry:xpadneo.repo ]]; then
-            if dnf list --installed | grep -q "xone" && dnf list --installed | grep -q "xone"; then 
-                clear
-                echo -e "[!] Se han encontrado los drivers de xone y xpadneo instalados en el sistema. Omitiendo... \n$(msg_ok)"; sleep 5
-                main
-            fi
-        else
-            echo -e "${yellow} Instalando los drivers xone y xpadneo para los controladores de Xbox...${default}"; sleep 2
-            echo -e "\nCheckeando dependencias...\n"; sleep 1.5
-            dnf list --installed | grep -q "lpf"
-
-            if [[ "$?" -ne 0 ]]; then 
-                echo "✗ No se ha encontrado el paquete 'lpf' instalandolo espera..."
-                sudo dnf install -y lpf 2> /dev/null
-            fi
-            
-            sudo dnf copr enable -y sentry/xpadneo
-            sudo dnf install -y xpadneo
-            sudo dnf copr enable -y sentry/xone
-            sudo dnf install -y xone lpf-xone-firmware
-            echo -e "${yellow} A continuacion se van a firmar, construir y instalar los modulos de xone (Necesario para los mandos de Xbox One y Xbox Series X|S). Si se le hace alguna pregunta debe responder todo con 'y'${default}"
+        if [ "$(mokutil --sb-state | awk '{print $2}')" = "enabled" ]; then
+            echo -e "${yellow} Se ha detectado que tienes secure boot habilitado, por lo tanto xpadneo (Controlador para el gamepad inalámbrico de Xbox One) no funcionará ya que no está firmado.${default}"
             press_any_key
-            echo -e "${cyan}Aprobando licencia y verificando requisitos del firmware...${default}"
-            sudo lpf approve xone-firmware
-            msg_ok
-            echo -e "${cyan}Descargando y construyendo el firmware.....${default}"
-            sudo lpf build xone-firmware
-            msg_ok
-            echo -e "${cyan}Instalando el firmware en el sistema...${default}"
-            sudo lpf install xone-firmware
-            msg_ok
-            if kdialog --yesno "Se acaban de instalar exitosamente los controladores para los mandos de Xbox, ahora debes reiniciar el PC para que se cargen los modulos." \
-           --yes-label "Reiniciar ahora" --no-label "Cancelar" 2> /dev/null; then
-                sudo reboot now
+        else
+            if [[ -f /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:sentry:xone.repo || -f /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:sentry:xpadneo.repo ]]; then
+                if dnf list --installed | grep -q "xone" && dnf list --installed | grep -q "xone"; then 
+                    clear
+                    echo -e "[!] Se han encontrado los drivers de xone y xpadneo instalados en el sistema. Omitiendo... \n$(msg_ok)"; sleep 5
+                    main
+                fi
             else
-                main
+                echo -e "${yellow} Instalando los drivers xone y xpadneo para los controladores de Xbox...${default}"; sleep 2
+                echo -e "\nCheckeando dependencias...\n"; sleep 1.5
+                dnf list --installed | grep -q "lpf"
 
+                if [[ "$?" -ne 0 ]]; then 
+                    echo "✗ No se ha encontrado el paquete 'lpf' - instalandolo..."
+                    sudo dnf install -y lpf 2> /dev/null
+                fi
+                
+                sudo dnf copr enable -y sentry/xpadneo
+                sudo dnf install -y xpadneo
+                sudo dnf copr enable -y sentry/xone
+                sudo dnf install -y xone lpf-xone-firmware
+                echo -e "${yellow} A continuacion se van a firmar, construir y instalar los modulos de xone (Necesario para los mandos de Xbox One y Xbox Series X|S). Si se le hace alguna pregunta debe responder todo con 'y'${default}"
+                press_any_key
+                echo -e "${cyan}Aprobando licencia y verificando requisitos del firmware...${default}"
+                sudo lpf approve xone-firmware
+                msg_ok
+                echo -e "${cyan}Descargando y construyendo el firmware.....${default}"
+                sudo lpf build xone-firmware
+                msg_ok
+                echo -e "${cyan}Instalando el firmware en el sistema...${default}"
+                sudo lpf install xone-firmware
+                msg_ok
+                if kdialog --yesno "Se acaban de instalar exitosamente los controladores para los mandos de Xbox, ahora debes reiniciar el PC para que se cargen los modulos." \
+            --yes-label "Reiniciar ahora" --no-label "Cancelar" 2> /dev/null; then
+                    sudo reboot now
+                else
+                    main
+                fi
             fi
         fi
     else
