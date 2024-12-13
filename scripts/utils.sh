@@ -49,6 +49,18 @@ function custom_banner_text() {
 
 function check_deps() {
 
+    local paquetes=("newt")
+
+    for paquete in "${paquetes[@]}"; do
+        if ! dnf list installed "$paquete" &>/dev/null; then
+            echo -e "${red}✗ ${default} No se ha encontrado el paquete ${paquete}. Instalando..."
+            sudo dnf install -y "$paquete"
+            echo -e "${green}✓ ${default} Paquete ${paquete} instalado!"
+        else
+            echo -e "${green}✓ ${default} Paquete ${paquete} ya está instalado."
+        fi
+    done
+
     if ls /usr/local/share/fonts/custom/IosevkaTermNerdFont-*.ttf 1> /dev/null 2>&1; then
         echo -e "\n${green}✓ ${default}Fuentes parcheadas encontradas!"; sleep 1
     else
@@ -65,7 +77,7 @@ function check_deps() {
         echo -e "${yellow} ⚠ ${default}Secure boot deshabilitado${default}"; sleep 1
     fi
 
-    ./fedorafresh.sh
+    sleep 2 && ./fedorafresh.sh
 }
 
 function check_rpm_fusion() {
