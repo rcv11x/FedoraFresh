@@ -4,8 +4,11 @@
 # Licencia: MIT
 
 source "scripts/utils.sh"
-source "scripts/dnf_pkgs.sh"
-source "scripts/flatpak_pkgs.sh"
+
+source "scripts/install_dnf_packages.sh"
+source "scripts/dnf_packages_list.sh"
+source "scripts/install_flatpak_packages.sh"
+source "scripts/flatpak_packages_list.sh"
 
 trap stop_script INT
 
@@ -23,10 +26,11 @@ function show_banner() {
 function menu() {
 
     echo -e "(1) ${cyan}Instalar FedoraFresh${default}"
-    echo -e "(2) ${cyan}Instalar lista de paquetes Flatpak${default}"
-    echo -e "(3) ${cyan}Aplicar temas GRUB${default}"
-    echo -e "(4) ${cyan}Limpiar y Optimizar distro${default}"
-    echo -e "(5) ${cyan}Instalar drivers para mandos Xbox${default}"
+    echo -e "(2) ${cyan}Instalar/Desintalar paquetes Fedora${default}"
+    echo -e "(3) ${cyan}Instalar/Desinstalar paquetes Flatpak${default}"
+    echo -e "(4) ${cyan}Aplicar temas GRUB${default}"
+    echo -e "(5) ${cyan}Limpiar y Optimizar distro${default}"
+    echo -e "(6) ${cyan}Instalar drivers para mandos Xbox${default}"
     echo -e "(i) ${cyan}Informacion del sistema${default}"
     echo -e "(0) ${cyan}Exit${default}\n"
 }
@@ -43,7 +47,7 @@ function installation() {
         clear
         custom_banner_text "${yellow} EMPEZANDO INSTALACION ${default}\n"; sleep 2; clear
         
-        sudo mkdir -pv /usr/local/share/fonts/custom
+        sudo mkdir -pv /usr/local/share/fonts/custom/
         mkdir -pv "$HOME/Imágenes/wallpapers/"
         mkdir -pv "$HOME/.icons"
         mkdir -pv "$HOME/.config/kitty"
@@ -52,9 +56,9 @@ function installation() {
         check_rpm_fusion
         install_multimedia
         install_flatpak
-        echo -e "\n${purple}[!] Instalando paquetes...${default}\n"
-        sudo dnf install -y "${dnf_packages[@]}"; sleep 1.5
-        echo -e "$(msg_ok) Listo.\n"
+        # echo -e "\n${purple}[!] Instalando paquetes...${default}\n"
+        # sudo dnf install -y "${dnf_packages[@]}"; sleep 1.5
+        # echo -e "$(msg_ok) Listo.\n"
         echo -e "\n${purple}[!] Instalando VS Code...${default}\n"
         sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
         echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
@@ -130,17 +134,22 @@ function main(){
                     ;;
                 2)
                     clear
-                    install_flatpaks
+                    install_packages
                     ;;
                 3)
                     clear
+                    install_flatpak_packages
+                    ;;
+
+                4)
+                    clear
                     apply_grub_themes
                     ;;
-                4)
+                5)
                     clear
                     optimization
                     ;;
-                5)
+                6)
                     clear
                     install_xbox_controllers
                     ;;

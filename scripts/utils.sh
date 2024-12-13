@@ -49,7 +49,7 @@ function custom_banner_text() {
 
 function check_deps() {
 
-    if ls /usr/local/share/fonts/custom-fonts/IosevkaTermNerdFont-*.ttf 1> /dev/null 2>&1; then
+    if ls /usr/local/share/fonts/custom/IosevkaTermNerdFont-*.ttf 1> /dev/null 2>&1; then
         echo -e "\n${green}✓ ${default}Fuentes parcheadas encontradas!"; sleep 1
     else
         echo -e "\n${red}✗ ${default} No se ha encontrado las fuentes parcheadas. Instalandolas...\n"
