@@ -8,14 +8,15 @@ source "../scripts/utils.sh"
 
 # Función para mostrar menú de categorías
 function show_categories() {
-    
+    local sorted_categories=($(for category in "${!DNF_CATEGORIES[@]}"; do echo "$category"; done | sort))
+
     local MENU_ITEMS=()
-    for category in "${!DNF_CATEGORIES[@]}"; do
+    for category in "${sorted_categories[@]}"; do
         MENU_ITEMS+=("$category" "Paquetes de $category")
     done
 
     local SELECTED_CATEGORY=$(whiptail --title "Instala/Desinstala paquetes DNF" \
-        --menu "Elige una categoría:" 20 100 10 \
+        --menu "Elige una categoría:" 20 120 10 \
         "${MENU_ITEMS[@]}" 3>&1 1>&2 2>&3)
 
     # Salir si el usuario cancela

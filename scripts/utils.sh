@@ -129,8 +129,8 @@ function install_multimedia() {
     sudo dnf -y install ffmpeg ffmpeg-libs libva libva-utils
     check_cpu_type
     echo -e "\n${purple}[!] Instalando y configurando OpenH264 para Firefox...${default}\n"
-    # sudo dnf config-manager --set-enabled fedora-cisco-openh264
     sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
+    sudo dnf config-manager -y setopt fedora-cisco-openh264.enabled=1
 }
 
 function install_gpu_drivers() {
@@ -224,14 +224,14 @@ function install_flatpak() {
 
 function dnf_hacks() {
     echo -e "\n${purple}[!] Configurando DNF...${default}\n"; sleep 1.5
-    echo "max_parallel_downloads=10" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
+    echo "max_parallel_downloads=15" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
 }
 
 function apply_grub_themes() {
     clear
     current_theme=$(grep '^GRUB_THEME=' /etc/default/grub | cut -d'"' -f2)
     if [[ -n $current_theme ]]; then
-        theme_name=$(basename "$(dirname "$current_theme")") # Extrae el nombre de la carpeta del tema
+        theme_name=$(basename "$(dirname "$current_theme")")
         echo -e "${yellow}Tema actual: ${theme_name}${default}"
     else
         echo -e "${yellow}Tema actual: Ninguno${default}"

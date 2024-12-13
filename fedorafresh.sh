@@ -6,9 +6,8 @@
 source "scripts/utils.sh"
 
 source "scripts/install_dnf_packages.sh"
-source "scripts/dnf_packages_list.sh"
 source "scripts/install_flatpak_packages.sh"
-source "scripts/flatpak_packages_list.sh"
+source "scripts/packages_list.sh"
 
 trap stop_script INT
 

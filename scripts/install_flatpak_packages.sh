@@ -6,10 +6,14 @@
 source "../scripts/utils.sh"
 
 function show_categories_flatpak() {
+
+    local sorted_categories=($(for category in "${!FLATPAK_CATEGORIES[@]}"; do echo "$category"; done | sort))
+
     local MENU_ITEMS=()
-    for category in "${!FLATPAK_CATEGORIES[@]}"; do
+    for category in "${sorted_categories[@]}"; do
         MENU_ITEMS+=("$category" "Paquetes de $category")
     done
+
 
     local SELECTED_CATEGORY=$(whiptail --title "Instala/Desinstala paquetes Flatpak" \
         --menu "Elige una categoría:" 20 100 10 \
@@ -75,7 +79,7 @@ function show_packages_flatpak() {
     done <<< "${FLATPAK_CATEGORIES[$category]}"
 
     local SELECTION=$(whiptail --title "Instalador de Paquetes - $category" \
-        --checklist "Selecciona los paquetes a $action:" 20 100 10 \
+        --checklist "Selecciona los paquetes a $action:" 20 120 10 \
         "${PACKAGES[@]}" 3>&1 1>&2 2>&3)
 
     # Sale si el usuario selecciona cancelar
