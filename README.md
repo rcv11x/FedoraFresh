@@ -49,20 +49,26 @@ Ejecuta el script mediante:
 La opcion 1 es la de la instalacion del script, si acabas de instalar Fedora con KDE por primera vez asegurate de tener el sistema actualizado mediante el comando `sudo dnf update -y`, si tienes todo actualizado puedes ejecutar el script, en caso contrario reinicia el sistema para aplicar la actualizacion y despues ejecuta la opcion 1 de nuevo<br><br>
 Esta opcion instalará todo lo necesario para empezar a usar fedora por primera vez pero es bueno combinarlo con la opcion 2 ⬇️
 
-## Opcion 2 (Instalar Flatpaks)
+## Opcion 2 (Instalar paquetes fedora)
 
-Opcion muy util para instalar una gran lista de paquetes flatpak, esta es una lista que he añadido personalmente y puedes agregar/quitar paquetes a tu gusto, simplemente puedes editar el archivo `scripts/flatpak_pkgs.sh` y una vez hayas echo algun cambio lo guardas y ejecutas el script `./fedorafresh.sh` de nuevo  con la opcion 2
+Opcion para instalar una gran cantidad de paquetes fedora gracias a un facil y intuitivo menu
 
-Nota: tambien puedes editar el archivo `scripts/dnf_pkgs.sh` para agregar/quitar paquetes dnf que no son flatpaks antes de ejecutar el script de instalacion, aunque los que he agregado yo ya son suficientes y es recomendable dejarlo como está.
+Nota: tambien puedes desinstalar paquetes desde allí
 
-## Opcion 3 (Temas GRUB)
+## Opcion 3 (Instalar Flatpaks)
+
+Opcion para instalar una gran cantidad de paquetes flatpak gracias a un facil y intuitivo menu, puedes agregar/quitar paquetes a tu gusto, simplemente edita el archivo `scripts/packages_list.sh` y una vez hayas echo algun cambio lo guardas y ejecutas el script `./fedorafresh.sh` de nuevo.
+
+Nota: En el archivo `scripts/dnf_pkgs.sh` tambien se encuentran paquetes fedora (dnf) que puedes agregar/quitar.
+
+## Opcion 4 (Temas GRUB)
 
 Opcion util si te interesa cambiar el tema de tu GRUB de forma sencilla, de momento hay 2 Temas pero iré agregando mas con el tiempo
 
-## Opcion 4 (Optimizar Ditro)
+## Opcion 5 (Optimizar Ditro)
 
 Ya sabemos que linux no es como windows que suele llenarse mas de archivos temporales y basura con el tiempo, pero en linux tambien pasa y aunque es menos frecuente si llevas usando ya un tiempo tu PC esta opcion te resultará util ya que te quitará bastante espacio de tu disco duro
 
-## Opcion 5 (Controladores mandos Xbox)
+## Opcion 6 (Controladores mandos Xbox)
 
 Opcion muy util si tienes mandos de xbox ya sea de 360, one, one x/s o incluso mandos inalambricos bluetooh ya que instalará varios paquetes para que tengas un buen soporte y compatibilidad para tus mandos

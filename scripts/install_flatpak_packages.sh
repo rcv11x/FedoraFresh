@@ -5,6 +5,31 @@
 
 source "../scripts/utils.sh"
 
+function remove_flatpak_data() {
+    local package_id="$1"
+    local data_dir="$HOME/.var/app/$package_id"
+    
+    echo "Desinstalando paquete: $package_id"
+    if flatpak uninstall -y "$package_id"; then
+        echo "Paquete '$package_id' desinstalado correctamente."
+    else
+        echo "Error al desinstalar el paquete '$package_id'."
+        return 1
+    fi
+
+    if [ -d "$data_dir" ]; then
+        if (whiptail --title "Eliminar Datos" --yesno "¿Quieres eliminar los datos asociados al paquete '$package_id'?\n\nDirectorio: $data_dir" 12 60); then
+            echo "Eliminando datos del paquete: $package_id"
+            rm -rf "$data_dir"
+            echo "Datos eliminados: $data_dir"
+        else
+            echo "Datos del paquete '$package_id' conservados."
+        fi
+    else
+        echo "No se encontraron datos asociados al paquete '$package_id'."
+    fi
+}
+
 function show_categories_flatpak() {
 
     local sorted_categories=($(for category in "${!FLATPAK_CATEGORIES[@]}"; do echo "$category"; done | sort))
@@ -101,7 +126,11 @@ function show_packages_flatpak() {
             action_verb="desinstalado"
             action_title="Desinstalación"
             echo "Desinstalando paquetes: ${PACKAGES_TO_MANAGE[@]}"
-            sudo flatpak uninstall -y "${PACKAGES_TO_MANAGE[@]}"
+
+            # Preguntar si eliminar datos para cada paquete
+            for package in "${PACKAGES_TO_MANAGE[@]}"; do
+                remove_flatpak_data "$package"
+            done
         fi
 
         # Verifica el estado de instalación/desinstalación
@@ -125,6 +154,7 @@ function show_packages_flatpak() {
         exit 0
     fi
 }
+
 
 function install_flatpak_packages() {
     show_categories_flatpak

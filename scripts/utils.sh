@@ -55,20 +55,20 @@ function check_deps() {
         if ! dnf list installed "$paquete" &>/dev/null; then
             echo -e "${red}✗ ${default} No se ha encontrado el paquete ${paquete}. Instalando..."
             sudo dnf install -y "$paquete"
-            echo -e "${green}✓ ${default} Paquete ${paquete} instalado!"
+            echo -e "${green}✓ ${default}Paquete ${paquete} instalado!"
         else
-            echo -e "${green}✓ ${default} Paquete ${paquete} ya está instalado."
+            echo -e "${green}✓ ${default}Paquete ${paquete} ya está instalado."
         fi
     done
 
     if ls /usr/local/share/fonts/custom/IosevkaTermNerdFont-*.ttf 1> /dev/null 2>&1; then
-        echo -e "\n${green}✓ ${default}Fuentes parcheadas encontradas!"; sleep 1
+        echo -e "${green}✓ ${default}Fuentes parcheadas encontradas!"; sleep 1
     else
-        echo -e "\n${red}✗ ${default} No se ha encontrado las fuentes parcheadas. Instalandolas...\n"
+        echo -e "${red}✗ ${default} No se ha encontrado las fuentes parcheadas. Instalandolas...\n"
         curl -sSL -o ./fonts/IosevkaTerm.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*IosevkaTerm.zip"' | cut -d'"' -f4)" 2> /dev/null
         sudo unzip -o "./fonts/$font" -d /usr/local/share/fonts/custom
         rm -rf ./fonts
-        echo -e "\n${green}✓ ${default}Fuentes instaladas!"; sleep 1
+        echo -e "${green}✓ ${default}Fuentes instaladas!"; sleep 1
     fi
 
     if [ "$(mokutil --sb-state | awk '{print $2}')" = "enabled" ]; then
