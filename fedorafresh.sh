@@ -37,12 +37,12 @@ function menu() {
 function installation() {
     clear
     check_deps
-    custom_banner_text "${yellow} A continuacion se va a ejecutar el script de instalacion ¿Seguro que quieres continuar? [yY/nN]${default}";
-    read -r -p "${prompt}" yesno
-    if [[ $yesno == "n" || $yesno == "N" ]]; then
+    speed_test
+    
+    if ! gum confirm "¿Quieres empezar con la instalacion de FedoraFresh?"; then
         clear
         main
-    elif [[ $yesno == "y" || $yesno == "Y" ]]; then
+    else
         clear
         custom_banner_text "${yellow} EMPEZANDO INSTALACION ${default}\n"; sleep 2; clear
         

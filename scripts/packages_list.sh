@@ -41,6 +41,9 @@ nodejs Entorno de ejecución de JavaScript
 docker Plataforma de contenedores
 python3 Lenguaje de programación Python
 gcc Compilador de C/C++"
+
+    [Ciberseguridad/Pentesting]="nmap Escaner de red
+hashcat Recuperacion avanzada de contraseñas / cracking"
 )
 
 declare -A FLATPAK_CATEGORIES=(

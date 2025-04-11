@@ -47,7 +47,51 @@ function custom_banner_text() {
     echo -e "============================================================================================================"
 }
 
+
+function speed_test() {
+
+    echo -e "\n"
+    if gum confirm "¿Quieres realizar un test de velocidad para evaluar tu conexión a internet?"; then
+
+        clear
+        gum spin --spinner dot --title "Ejecutando test de velocidad..." -- bash -c './scripts/speedtest-cli --secure --simple 2>/dev/null > speedtest_output.txt'
+
+        output=$(<speedtest_output.txt)
+        download=$(echo "$output" | grep "Download:" | awk '{print $2}')
+        upload=$(echo "$output" | grep "Upload:" | awk '{print $2}')
+        unit=$(echo "$output" | grep "Download:" | awk '{print $3}')
+
+        gum style \
+            --foreground 212 --border double --margin "1 2" --padding "1 2" --align center --width 50 \
+            "Resultados del test de velocidad" \
+            "⬇️  Descarga: $download $unit" \
+            "⬆️  Subida: $upload $unit"
+
+        if (( $(echo "$download >= 500" | bc -l) )); then
+            echo -e "✅  Tienes una velocidad de descarga muy alta! Configuraré las descargas paralelas de DNF en 15 mas adelante.\n"
+            parallel_downloads=15
+        elif (( $(echo "$download >= 400" | bc -l) )); then
+            echo -e "✅  Tienes una velocidad de descarga alta! Configuraré las descargas paralelas de DNF en 12 mas adelante.\n"
+            parallel_downloads=12
+        elif (( $(echo "$download >= 200" | bc -l) )); then
+            echo -e "✅  Tienes una buena velocidad de descarga! Configuraré las descargas paralelas de DNF en 9 mas adelante.\n"
+            parallel_downloads=9
+        elif (( $(echo "$download >= 100" | bc -l) )); then
+            echo -e "✅  Tienes una velocidad de descarga decente, Configuraré las descargas paralelas de DNF en 6 mas adelante.\n"
+            parallel_downloads=6
+        elif (( $(echo "$download <= 50" | bc -l) )); then
+            echo -e "✅  Tienes una velocidad de descarga algo baja, Configuraré las descargas paralelas de DNF en 3 (por defecto) mas adelante.\n"
+            parallel_downloads=3
+        fi
+    fi
+}
+
 function check_deps() {
+
+    gum style \
+	--foreground 212 --border-foreground 212 --border double \
+	--align center --width 50 --margin "1 2" --padding "2 4" \
+	'Checkeando dependencias...' && sleep 2
 
     local paquetes=("newt")
 
@@ -77,7 +121,7 @@ function check_deps() {
         echo -e "${yellow} ⚠ ${default}Secure boot deshabilitado${default}"; sleep 1
     fi
 
-    sleep 2 && ./fedorafresh.sh
+    sleep 2
 }
 
 function check_rpm_fusion() {
@@ -232,113 +276,66 @@ function apply_grub_themes() {
     current_theme=$(grep '^GRUB_THEME=' /etc/default/grub | cut -d'"' -f2)
     if [[ -n $current_theme ]]; then
         theme_name=$(basename "$(dirname "$current_theme")")
-        echo -e "${yellow}Tema actual: ${theme_name}${default}"
+        gum style --foreground 212 "Tema actual: $theme_name"
     else
-        echo -e "${yellow}Tema actual: Ninguno${default}"
+        gum style --foreground 212 "Tema actual: Ninguno"
     fi
 
-    echo -e "\n${purple}A continuacion se muestran los temas disponibles para instalar con este script, al seleccionar uno no se te instalara directamente, primero te mostrara opciones como 'instalarlo' o 'eliminarlo'. ${default}\n"
-    echo -e "(1) ${cyan}bsol (Pantalla azul de la muerte de windows)${default}"
-    echo -e "(2) ${cyan}oldbios (Estilo las BIOS antiguas)${default}"
-    echo -e "(m) ${cyan}Volver al menu principal${default}"
+    gum style --border normal --margin "1 0" --padding "1 2" --border-foreground 61 "Selecciona un tema para administrar (no se instalará automáticamente):"
 
+    selected_theme=$(gum choose "bsol (Pantalla azul de Windows)" "oldbios (Estilo BIOS antiguas)" "Volver al menú principal")
 
-    echo -e "\n¿Cual quieres modificar?"
+    case $selected_theme in
+        "bsol (Pantalla azul de Windows)")
+            theme_dir="bsol"
+            theme_name="bsol"
+            ;;
+        "oldbios (Estilo BIOS antiguas)")
+            theme_dir="OldBIOS"
+            theme_name="OldBIOS"
+            ;;
+        "Volver al menú principal")
+            main
+            return
+            ;;
+    esac
 
-    while true; do
+    clear
+    gum style --foreground 44 "Tema seleccionado: $theme_name"
+    action=$(gum choose "Instalar" "Eliminar" "Volver")
 
-        read -r -p "${prompt}" opt
-        case $opt in 
-            1)
-                clear
-                echo -e "${cyan}Tema seleccionado: bsol - Acciónes: instalar(i) | Eliminar(d) | Volver: (r) ${default}\n"
-                echo -e "${cyan}Instalar${default}"
-                echo -e "${cyan}Eliminar${default}"
-                read -r -p "${prompt}" opt
-                if [[ $opt == "i" ]]; then
-                    echo -e "${cyan}Instalando tema...${default}"; sleep 1
-                    sudo cp -r themes/grub/bsol /boot/grub2/themes/
+    case $action in
+        "Instalar")
+            echo "Instalando tema..."
+            sudo cp -r "themes/grub/$theme_dir" /boot/grub2/themes/
+            if grep -q '^GRUB_THEME=' /etc/default/grub; then
+                gum confirm "Ya hay un tema configurado en GRUB: ¿Deseas reemplazarlo?" && \
+                sudo sed -i "s|^GRUB_THEME=.*|GRUB_THEME=\"/boot/grub2/themes/$theme_name/theme.txt\"|" /etc/default/grub || {
+                    gum style --foreground 212 "Manteniendo el tema existente."
+                    return
+                }
+            else
+                echo "GRUB_THEME=\"/boot/grub2/themes/$theme_name/theme.txt\"" | sudo tee -a /etc/default/grub
+            fi
+            sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+            gum style --foreground 42 "✅ Tema $theme_name instalado correctamente."
+            ;;
 
-                    if grep -q '^GRUB_THEME=' /etc/default/grub; then
-                        echo -e "${red}¡Advertencia! Ya hay un tema configurado en GRUB: ${theme_name}.${default}"
-                        read -r -p "¿Deseas reemplazar el tema existente? (s/n): " replace
+        "Eliminar")
+            echo "Eliminando tema..."
+            sudo rm -rf "/boot/grub2/themes/$theme_name"
+            sudo sed -i '/^GRUB_THEME=/d' /etc/default/grub
+            sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+            gum style --foreground 160 "🗑️ Tema $theme_name eliminado."
+            ;;
 
-                        if [[ $replace == "s" ]]; then
-                            sudo sed -i 's|^GRUB_THEME=.*|GRUB_THEME="/boot/grub2/themes/bsol/theme.txt"|' /etc/default/grub
-                        else
-                            echo -e "${cyan}Manteniendo el tema existente.${default}"
-                            return
-                        fi
-                else
-                    echo 'GRUB_THEME="/boot/grub2/themes/bsol/theme.txt"' | sudo tee -a /etc/default/grub
-                fi
-
-                sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-                echo -e "\n${cyan}--> Tema bsol instalado <-- $(msg_ok)${default}"
-
-                elif [[ $opt  == "d" ]]; then
-                    echo -e "${cyan}Eliminando tema...${default}"
-                    sudo rm -rf /boot/grub2/themes/bsol
-                    sudo sed -i '/^GRUB_THEME=/d' /etc/default/grub
-                    sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-                    echo -e "\n${cyan}--> Tema bsol eliminado <--$(msg_ok)${default}"; sleep 2
-                elif [[ $opt  == "r" ]]; then
-                    apply_grub_themes
-                fi
-                ;;
-            2)
-                clear
-                echo -e "${cyan}Tema seleccionado: OldBIOS - Acciónes: instalar(i) | Eliminar(d) | Volver: (r) ${default}\n"
-                echo -e "${cyan}Instalar${default}"
-                echo -e "${cyan}Eliminar${default}"
-                read -r -p "${prompt}" opt
-                if [[ $opt == "i" ]]; then
-                    echo -e "${cyan}Instalando tema...${default}"; sleep 1
-                    sudo cp -r themes/grub/OldBIOS/ /boot/grub2/themes/
-
-                    if grep -q '^GRUB_THEME=' /etc/default/grub; then
-                        echo -e "${red}¡Advertencia! Ya hay un tema configurado en GRUB_THEME.${default}"
-                        read -r -p "¿Deseas reemplazar el tema existente? (s/n): " replace
-
-                        if [[ $replace == "s" ]]; then
-                            sudo sed -i 's|^GRUB_THEME=.*|GRUB_THEME="/boot/grub2/themes/OldBIOS/theme.txt"|' /etc/default/grub
-                        else
-                            echo -e "${cyan}Manteniendo el tema existente.${default}"
-                            return
-                        fi
-                else
-                    echo 'GRUB_THEME="/boot/grub2/themes/OldBIOS/theme.txt"' | sudo tee -a /etc/default/grub
-                fi
-                    
-                sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-                echo -e "\n${cyan}--> Tema OldBIOS instalado <--$(msg_ok)${default}"
-
-                elif [[ $opt  == "d" ]]; then
-                    echo -e "${cyan}Eliminando tema...${default}"
-                    sudo rm -rf /boot/grub2/themes/OldBIOS/
-                    sudo sed -i '/^GRUB_THEME=/d' /etc/default/grub
-                    sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-                    echo -e "\n${cyan}--> Tema OldBIOS eliminado <--$(msg_ok)${default}"; sleep 2
-                elif [[ $opt  == "r" ]]; then
-                    apply_grub_themes
-                fi
-                ;;
-            m)  
-                main
-                ;;
-            0)
-                exit 0
-                ;;
-            *) 
-                echo -e "\n${red}[!] Opción no válida${default}"
-                echo -e "\nPresiona una tecla para continuar"
-                read -n 1 -s -r -p ""
-                clear
-                apply_grub_themes
-                ;;
-        esac
-    done
+        "Volver")
+            apply_grub_themes
+            ;;
+    esac
 }
+
+    
 
 function optimization() {
 
