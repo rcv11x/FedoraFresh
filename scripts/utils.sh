@@ -24,7 +24,7 @@ fonts_dir=/usr/local/share/fonts/custom
 fedora_version=$(cat /etc/os-release | grep -i "VERSION_ID" | awk -F'=' '{print $2}')
 fedora_variant=$(cat /etc/os-release | grep -w "VARIANT" | awk -F'=' '{print $2}' | sed 's/"//g')
 iosevka_repo_url="https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
-default_dnf_parallel=10
+dnf_parallel_downloads=10
 
 
 function stop_script() {
@@ -72,19 +72,19 @@ function speed_test() {
 
         if (( $(echo "$download >= 500" | bc -l) )); then
             echo -e "✅  Tienes una velocidad de descarga muy alta! Configuraré las descargas paralelas de DNF en 15 mas adelante.\n"
-            parallel_downloads=15
+            dnf_parallel_downloads=15
         elif (( $(echo "$download >= 400" | bc -l) )); then
             echo -e "✅  Tienes una velocidad de descarga alta! Configuraré las descargas paralelas de DNF en 12 mas adelante.\n"
-            parallel_downloads=12
+            dnf_parallel_downloads=12
         elif (( $(echo "$download >= 200" | bc -l) )); then
             echo -e "✅  Tienes una buena velocidad de descarga! Configuraré las descargas paralelas de DNF en 9 mas adelante.\n"
-            parallel_downloads=9
+            dnf_parallel_downloads=9
         elif (( $(echo "$download >= 100" | bc -l) )); then
             echo -e "✅  Tienes una velocidad de descarga decente, Configuraré las descargas paralelas de DNF en 6 mas adelante.\n"
-            parallel_downloads=6
+            dnf_parallel_downloads=6
         elif (( $(echo "$download <= 50" | bc -l) )); then
             echo -e "✅  Tienes una velocidad de descarga algo baja, Configuraré las descargas paralelas de DNF en 3 (por defecto) mas adelante.\n"
-            parallel_downloads=3
+            dnf_parallel_downloads=3
         fi
     fi
 }
@@ -94,7 +94,7 @@ function check_gum_installed() {
     if [[ -f /etc/yum.repos.d/charm.repo ]]; then          
         return 0         
     else
-        echo -e "\n${yellow}⚠ gum no ha sido encontrado y es necesario para la ejecucion del script, a continuacion se va a instalar\n${default}"
+        echo -e "\n${yellow}⚠ 'gum' no ha sido encontrado y es necesario para la ejecucion del script, a continuacion se va a instalar\n\n${default}"
         press_any_key
         sudo tee /etc/yum.repos.d/charm.repo > /dev/null <<-EOF
 [charm]
@@ -105,7 +105,7 @@ gpgcheck=1
 gpgkey=https://repo.charm.sh/yum/gpg.key
 EOF
 
-        sudo rpm --import https://repo.charm.sh/yum/gpg.key && sudo dnf install -y gum
+        sudo rpm --import https://repo.charm.sh/yum/gpg.key && sudo dnf install -y gum 2> /dev/null
     fi
     menu
 }
@@ -124,7 +124,7 @@ function check_deps() {
     for paquete in "${paquetes[@]}"; do
         if ! dnf list --installed "$paquete" &>/dev/null; then
             echo -e "${red}✗ ${default} No se ha encontrado el paquete ${paquete}. Instalando..."
-            sudo dnf install -y $paquete 2> /dev/null
+            sudo dnf install -y $paquete &> /dev/null
             echo -e "${green}✓ ${default}Paquete ${paquete} ya instalado!"
         else
             echo -e "${green}✓ ${default}Paquete ${paquete} ya se encuentra instalado!"
@@ -292,7 +292,7 @@ function install_fonts() {
 
     rm -rf $current_dir/fonts
     sudo rm /usr/local/share/fonts/custom/*.md /usr/local/share/fonts/custom/*.txt
-    sudo fc-cache -v
+    sudo fc-cache &> /dev/null
 }
 
 function install_flatpak() {
@@ -303,7 +303,7 @@ function install_flatpak() {
 
 function dnf_hacks() {
     echo -e "\n${purple}[!] Configurando DNF...${default}\n"; sleep 1.5
-    echo "max_parallel_downloads=$default_dnf_parallel" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
+    echo "max_parallel_downloads=$dnf_parallel_downloads" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
 }
 
 function apply_grub_themes() {
