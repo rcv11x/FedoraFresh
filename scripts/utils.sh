@@ -119,15 +119,15 @@ function check_deps() {
 	--align center --width 50 --margin "1 2" --padding "2 4" \
 	'Checkeando dependencias...' && sleep 2
 
-    local paquetes=("newt" "gum")
+    local paquetes=("newt" "gum" "git")
 
     for paquete in "${paquetes[@]}"; do
         if ! dnf list --installed "$paquete" &>/dev/null; then
             echo -e "${red}✗ ${default} No se ha encontrado el paquete ${paquete}. Instalando..."
-            sudo dnf install -y "$paquete"
-            echo -e "${green}✓ ${default}Paquete ${paquete} instalado!"
+            sudo dnf install -y $paquete 2> /dev/null
+            echo -e "${green}✓ ${default}Paquete ${paquete} ya instalado!"
         else
-            echo -e "${green}✓ ${default}Paquete ${paquete} ya está instalado."
+            echo -e "${green}✓ ${default}Paquete ${paquete} ya se encuentra instalado!"
         fi
     done
 
@@ -434,7 +434,7 @@ function optimization() {
 
 function install_xbox_controllers() {
 
-    echo -e "${yellow} A continuacion se van instalar los controladores necesarios para que funcionen correctamente los mandos de Xbox (360, One, One X/S) tanto cableados como por bluetooth\n\n${default}- [!] Para ello es importante tener en cuenta que si tienes habilitado el Secure Boot (Modo seguro) es posible que no se instalen correctamente los drivers para los mandos inalambricos ya que no estan firmados ¿Quieres continuar y empezar la instalacion? [yY/nN]\n${default}";
+    echo -e "${yellow} A continuacion se van instalar los controladores necesarios para que funcionen correctamente los mandos inalambricos de xbox entre otros como (S, Elites Serie 2, 8BitDo...)\n\n${default}- [!] Para ello es importante tener en cuenta que si tienes habilitado el Secure Boot (Modo seguro) es posible que no se instalen correctamente los drivers para los mandos inalambricos ya que no estan firmados ¿Quieres continuar y empezar la instalacion? [yY/nN]\n${default}";
     
     local paquetes=("dkms" "make" "bluez" "bluez-tools" "kernel-devel-`uname -r`" "kernel-headers")
 
@@ -450,10 +450,11 @@ function install_xbox_controllers() {
 
     if dkms status | grep -q "xpadneo" && [[ -f "/opt/xpadneo/install.sh" ]]; then
         if gum confirm "✓ xpadneo ya está instalado y el repositorio se encuentra en /opt/xpadneo. ¿Quieres buscar nuevas actualizaciones?"; then
+            git config --global --ad safe.directory /opt/xpadneo
             cd /opt/xpadneo
-            git pull && sudo ./update.sh
+            sudo git pull && sudo ./update.sh
         else
-            echo -e "Volviendo al menu principal..."; sleep 2
+            echo -e "\nVolviendo al menu principal..."; sleep 2
         fi
     else
         echo "✗ xpadneo no está correctamente instalado o falta el repositorio. Procediendo con la instalación..."
@@ -464,4 +465,39 @@ function install_xbox_controllers() {
     fi
 
     sleep 4 && main
+}
+
+function install_rcv11x_config() {
+
+        # -- CONFIGURACION -- #
+        echo -e "\n${purple}[!] Instalando plugins de ZSH para $USER y root...${default}\n"
+        sudo dnf install kitty zsh -y
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended; sleep 2
+        sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"/plugins/zsh-syntax-highlighting
+        git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"/plugins/zsh-autosuggestions
+        sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git /root/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+        sudo git clone https://github.com/zsh-users/zsh-autosuggestions /root/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+        sudo chsh -s "$(which zsh)" "$USER"
+        sudo chsh -s "$(which zsh)" root
+        rm -rf "$HOME/.zshrc"
+        cp -rv config/.zshrc "$HOME"
+        sudo rm -rf /root/.zshrc
+        sudo ln -sfv ~/.zshrc /root/.zshrc
+        echo -e "\n${purple}[!] Configurando Kitty y Nano...${default}\n"
+        cp -rv config/kitty/* "$HOME/.config/kitty"
+        cp -rv config/.nano "$HOME"
+        cp -rv config/.nanorc "$HOME"
+        sleep 2
+        echo -e "\n${purple}[!] Aplicando temas de mouse, wallpaper y otras configuraciones...${default}\n"
+        cp -rv config/.icons/* "$HOME/.icons/"
+        cp -rv wallpapers/ "$HOME/Imágenes/"
+        kwriteconfig6 --file "$HOME"/.config/kcminputrc --group Mouse --key cursorTheme "Bibata-Modern-Ice"
+        plasma-apply-wallpaperimage "/home/$USER/Imágenes/wallpapers/4k/250345-final.png"
+        
+        {
+            echo
+            echo "[services][kitty.desktop]"
+            echo "_launch=Meta+Return"
+        } >> "$HOME/.config/kglobalshortcutsrc"
 }

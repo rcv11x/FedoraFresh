@@ -30,6 +30,7 @@ function menu() {
     echo -e "(4) ${cyan}Aplicar temas GRUB${default}"
     echo -e "(5) ${cyan}Limpiar y Optimizar distro${default}"
     echo -e "(6) ${cyan}Instalar drivers para mandos Xbox${default}"
+    echo -e "(7) ${cyan}Instalar config de rcv11x${default}"
     echo -e "(i) ${cyan}Informacion del sistema${default}"
     echo -e "(0) ${cyan}Exit${default}\n"
 }
@@ -70,39 +71,7 @@ function installation() {
         sudo dnf -y install code
         echo -e "$(msg_ok) Listo.\n"
 
-        # -- CONFIGURACION -- #
-        echo -e "\n${purple}[!] Instalando plugins de ZSH para $USER y root...${default}\n"
-        sudo dnf install kitty zsh -y
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended; sleep 2
-        sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"/plugins/zsh-syntax-highlighting
-        git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"/plugins/zsh-autosuggestions
-        sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git /root/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-        sudo git clone https://github.com/zsh-users/zsh-autosuggestions /root/.oh-my-zsh/custom/plugins/zsh-autosuggestions
-        sudo chsh -s "$(which zsh)" "$USER"
-        sudo chsh -s "$(which zsh)" root
-        rm -rf "$HOME/.zshrc"
-        cp -rv config/.zshrc "$HOME"
-        sudo rm -rf /root/.zshrc
-        sudo ln -sfv ~/.zshrc /root/.zshrc
-        echo -e "\n${purple}[!] Configurando Kitty y Nano...${default}\n"
-        cp -rv config/kitty/* "$HOME/.config/kitty"
-        cp -rv config/.nano "$HOME"
-        cp -rv config/.nanorc "$HOME"
-        sleep 2
-        # install_fonts
-        echo -e "\n${purple}[!] Aplicando temas de mouse, wallpaper y otras configuraciones...${default}\n"
-        cp -rv config/.icons/* "$HOME/.icons/"
-        cp -rv wallpapers/ "$HOME/Imágenes/"
-        kwriteconfig6 --file "$HOME"/.config/kcminputrc --group Mouse --key cursorTheme "Bibata-Modern-Ice"
-        plasma-apply-wallpaperimage "/home/$USER/Imágenes/wallpapers/4k/250345-final.png"
-        
-        {
-            echo
-            echo "[services][kitty.desktop]"
-            echo "_launch=Meta+Return"
-        } >> "$HOME/.config/kglobalshortcutsrc"
-
+        install_rcv11x_config
         install_gpu_drivers
         update_firmware
         
@@ -153,6 +122,10 @@ function main(){
                 6)
                     clear
                     install_xbox_controllers
+                    ;;
+                7)
+                    clear
+                    install_rcv11x_config
                     ;;
                 i)
                     clear
