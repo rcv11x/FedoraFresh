@@ -134,7 +134,7 @@ function check_deps() {
     if ls /usr/local/share/fonts/custom/IosevkaTermNerdFont-*.ttf 1> /dev/null 2>&1; then
         echo -e "${green}✓ ${default}Fuentes parcheadas encontradas!"; sleep 1
     else
-        echo -e "${red}✗ ${default} No se han encontrado las fuentes parcheadas necesarias. Instalandolas...\n"
+        echo -e "${red}✗ ${default} No se han encontrado las fuentes parcheadas necesarias\n"
         install_fonts
         rm -rf ./fonts
         echo -e "${green}✓ ${default}Fuentes instaladas!"; sleep 1
@@ -273,18 +273,21 @@ function update_firmware() {
 }
 
 function install_fonts() {
+    sudo mkdir -p $fonts_dir
     echo -e "${purple}[!] Descargando e instalando fuentes parcheadas...${default}\n"; sleep 1.5
-    curl -sSL -o $current_dir/fonts/Iosevka.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*Iosevka.zip"' | cut -d'"' -f4)"
-    curl -sSL -o $current_dir/fonts/IosevkaTerm.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*IosevkaTerm.zip"' | cut -d'"' -f4)"
-    curl -sSL -o $current_dir/fonts/ZedMono.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*ZedMono.zip"' | cut -d'"' -f4)"
-    curl -sSL -o $current_dir/fonts/Meslo.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*Meslo.zip"' | cut -d'"' -f4)"
-    curl -sSL -o $current_dir/fonts/FiraCode.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*FiraCode.zip"' | cut -d'"' -f4)"
+    gum spin --spinner dot --title "Descargando e instalando fuentes parcheadas necesarias..." -- bash -c "
+        curl -sSL -o $current_dir/fonts/Iosevka.zip     \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*Iosevka.zip\"' | cut -d'\"' -f4)\"
+        curl -sSL -o $current_dir/fonts/IosevkaTerm.zip \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*IosevkaTerm.zip\"' | cut -d'\"' -f4)\"
+        curl -sSL -o $current_dir/fonts/ZedMono.zip      \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*ZedMono.zip\"' | cut -d'\"' -f4)\"
+        curl -sSL -o $current_dir/fonts/Meslo.zip        \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*Meslo.zip\"' | cut -d'\"' -f4)\"
+        curl -sSL -o $current_dir/fonts/FiraCode.zip     \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*FiraCode.zip\"' | cut -d'\"' -f4)\"
+    "
 
-    for font in $current_dir/fonts/*.zip; do
-        echo -e "${red}[!] Descomprimiendo fuentes en '$fonts_dir' ...${default}"; sleep 1
-        sudo unzip -o "$current_dir/fonts/$font" -d $fonts_dir
-        echo -e "$(msg_ok) Listo.\n"
-    done
+    gum spin --spinner dot --title "Extrayendo fuentes en `$fonts_dir`..." -- bash -c "
+        for font in $current_dir/fonts/*.zip; do
+            sudo unzip -o \"\$font\" -d \"$fonts_dir\" >/dev/null
+        done
+    "
 
     rm -rf ./fonts
     sudo rm /usr/local/share/fonts/custom/*.md /usr/local/share/fonts/custom/*.txt
