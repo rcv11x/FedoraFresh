@@ -140,4 +140,58 @@ function main(){
     
 }
 
+function show_help() {
+  echo "Usage: ./fedorafresh.sh [options]"
+  echo ""
+  echo "Options:"
+  echo "  -h, --help       Show this help menu"
+  echo "  -i, --install    Instalar el repo en el directorio HOME"
+  echo "  -u, --update     Buscar actualizaciones y actualizar el repositorio"
+ 
+  exit 0
+}
+
+function update_repo() {
+  echo "🔄 Buscando actualizaciones del repositorio..."
+  git pull
+  echo "✅ Repositorio actualizado."
+  exit 0
+}
+
+function install_home_dir() {
+
+    if [[ -f "$HOME/.fedorafresh" && -f "$HOME/.fedorafresh/fedorafresh.sh" ]]; then         
+        gum style \
+            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "✅ FedoraFresh ya se encuentra instalado en '$HOME/.fedorafresh'"
+        return 0         
+    else
+        git clone https://github.com/rcv11x/FedoraFresh.git "$HOME/.fedorafresh"
+        sudo ln -s "$HOME/.fedorafresh/fedorafresh.sh" /usr/local/bin/fedorafresh
+        exec $SHELL
+    fi
+}
+
+case "$1" in
+  -h|--help)
+    show_help
+    ;;
+  -i|--install)
+    install_home_dir
+    ;;
+  -u|--update)
+    update_repo
+    ;;
+  "" )
+    echo "🔧 Ejecutando menú principal de FedoraFresh..."
+    # Aquí va tu menú normal si no se pasan parámetros
+    ;;
+  *)
+    echo "❌ Opción no reconocida: $1"
+    echo "Usa --help para ver las opciones disponibles."
+    exit 1
+    ;;
+esac
+
 main
+
