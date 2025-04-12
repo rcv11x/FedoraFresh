@@ -54,7 +54,7 @@ function installation() {
         mkdir -pv "$HOME/.config/kitty"
         mkdir -pv "$current_dir/fonts/"
 
-        echo -e "\n${purple}[!] Establece un nombre de host para tu equipo ¿Que nombre le quieres poner? Ej. (mipc, pc-juan...)${default}\n"
+        echo -e "\n${purple}[!] Establece un nombre de host para tu equipo ¿Que nombre le quieres poner? Ej. (mipc, pc-juan...) Importante! No incluyas espacios o caracteres raros ${default}\n"
         hostname_name=$(gum input --placeholder="Nombre de tu equipo... " --cursor.mode="blink")
         sudo hostnamectl set-hostname "$hostname_name"
 
@@ -62,7 +62,7 @@ function installation() {
         check_rpm_fusion
         install_multimedia
         install_flatpak
-        
+
         echo -e "\n${purple}[!] Instalando VS Code...${default}\n"
         sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
         echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
@@ -72,6 +72,7 @@ function installation() {
 
         # -- CONFIGURACION -- #
         echo -e "\n${purple}[!] Instalando plugins de ZSH para $USER y root...${default}\n"
+        sudo dnf install kitty zsh -y
         sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended; sleep 2
         sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
         git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"/plugins/zsh-syntax-highlighting
