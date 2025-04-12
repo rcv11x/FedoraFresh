@@ -441,7 +441,7 @@ function install_xbox_controllers() {
     for paquete in "${paquetes[@]}"; do
         if ! dnf list --installed "$paquete" &>/dev/null; then
             echo -e "${red}✗ ${default} No se ha encontrado el paquete ${paquete}. Instalando..."
-            sudo dnf install -y "$paquete 2> /dev/null"
+            sudo dnf install -y $paquete 2> /dev/null
             echo -e "${green}✓ ${default}Paquete ${paquete} instalado!"
         else
             echo -e "${green}✓ ${default}Paquete ${paquete} ya está instalado."
@@ -462,9 +462,6 @@ function install_xbox_controllers() {
         sudo ./install.sh
         cd "$current_dir" && menu
     fi
-
-
-
 
     sleep 4 && main
 }
