@@ -17,8 +17,8 @@ function show_banner() {
     echo -e " | |_ / _ \/ _' |/ _ \| '__/ _' | |_ | '__/ _ \/ __| '_ \  "
     echo -e " |  _|  __/ (_| | (_) | | | (_| |  _|| | |  __/\__ \ | | | "
     echo -e " |_|  \___|\__,_|\___/|_|  \__,_|_|  |_|  \___||___/_| |_| \n"
-    echo -e "Hola! $(whoami) | Fedora: ${fedora_variant} v${fedora_version}"
-    echo -e "Estas en: $current_dir\n\n" 
+    echo -e "Hola $(whoami)! | Fedora: ${fedora_variant} v${fedora_version}"
+    echo -e "Estas en: ${yellow}$current_dir${default}\n\n" 
 
 }
 
@@ -47,7 +47,7 @@ function installation() {
         clear
         gum style \
             --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 50 \
-            "EMPEZANDO INSTALACION..."; sleep 3
+            "EMPEZANDO INSTALACION..."; sleep 2
 
 
         sudo mkdir -p $fonts_dir
@@ -58,7 +58,7 @@ function installation() {
 
         gum style \
             --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
-            "Establece un nombre de host para tu equipo Ej. (mipc, pc-juan...)" "⚠<fe0f> Ten cuidado con los espacios y caracteres raros"
+            "Establece un nombre de host para tu equipo Ej. (mipc, pc-juan...)" "⚠️ Ten cuidado con los espacios y caracteres raros"
         hostname_name=$(gum input --placeholder="Nombre de tu equipo... " --cursor.mode="blink")
         sudo hostnamectl set-hostname "$hostname_name"
 
@@ -76,12 +76,14 @@ function installation() {
 
         install_gpu_drivers
         update_firmware
+        install_essential_packages
         
         if kdialog --title "Instalacion terminada" --yesno "Instalacion exitosa!\n\n Ahora espera de 5 a 10 minutos (en el caso de que tengas una gpu nvidia) ya que se estarán compilando los modulos del kernel, de lo contrario puedes reiniciar\n - El PC se reiniciará automaticamente en 5 minutos" \
            --yes-label "Reiniciar ahora" --no-label "Cancelar" 2> /dev/null; then
             sudo reboot now
         else
             sudo shutdown -r +5
+            clear
         fi
     fi
        

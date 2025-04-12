@@ -34,7 +34,7 @@ function stop_script() {
 }
 
 function msg_ok() {
-    echo -e "\n${green}✓ OK${default}\n"
+    echo -e "\n${green}✓ OK${default}"
 }
 
 function press_any_key() {
@@ -133,9 +133,8 @@ function check_deps() {
     if ls /usr/local/share/fonts/custom/IosevkaTermNerdFont-*.ttf 1> /dev/null 2>&1; then
         echo -e "${green}✓ ${default}Fuentes parcheadas encontradas!"; sleep 1
     else
-        echo -e "${red}✗ ${default}No se han encontrado las fuentes parcheadas necesarias\n"
+        echo -e "${red}✗ ${default}No se han encontrado las fuentes parcheadas necesarias"
         install_fonts
-        rm -rf ./fonts
         echo -e "${green}✓ ${default}Fuentes instaladas!"; sleep 1
     fi
 
@@ -301,7 +300,7 @@ function install_fonts() {
     for font in "'"$current_dir"'/fonts/"*.zip; do
         sudo unzip -o "$font" -d "'"$fonts_dir"'" >/dev/null
     done
-    ' && echo -e "$(msg_ok) Fuentes extraídas.\n"; sleep 2
+    ' && echo -e "$(msg_ok) Fuentes extraídas."; sleep 2
 
 
     rm -rf "$current_dir/fonts"
@@ -310,9 +309,11 @@ function install_fonts() {
 }
 
 function install_flatpak() {
-    echo -e "${purple}[!] Instalando Repositorio de Flatpak...${default}"; sleep 1.5
+    gum style \
+            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "Instalando Repositorio de Flatpak..."; sleep 1
     sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-    msg_ok
+    echo -e "$(msg_ok) Repositorio flatpak instalado!."; sleep 2
 }
 
 function dnf_hacks() {
@@ -450,7 +451,9 @@ function optimization() {
 
 function install_xbox_controllers() {
 
-    echo -e "${yellow} A continuacion se van instalar los controladores necesarios para que funcionen correctamente los mandos inalambricos de xbox entre otros como (S, Elites Serie 2, 8BitDo...)\n\n${default}- [!] Para ello es importante tener en cuenta que si tienes habilitado el Secure Boot (Modo seguro) es posible que no se instalen correctamente los drivers para los mandos inalambricos ya que no estan firmados ¿Quieres continuar y empezar la instalacion? [yY/nN]\n${default}";
+    gum style \
+            --foreground "#32CD32" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "A continuacion se van instalar los controladores para que funcionen correctamente los mandos inalambricos de xbox entre otros como (S, Elites Series 2, 8BitDo...)"; sleep 2
     
     local paquetes=("dkms" "make" "bluez" "bluez-tools" "kernel-devel-`uname -r`" "kernel-headers")
 
@@ -465,7 +468,7 @@ function install_xbox_controllers() {
     done
 
     if dkms status | grep -q "xpadneo" && [[ -f "/opt/xpadneo/install.sh" ]]; then
-        if gum confirm "✓ xpadneo ya está instalado y el repositorio se encuentra en /opt/xpadneo. ¿Quieres buscar nuevas actualizaciones?"; then
+        if gum confirm "✓ xpadneo ya está instalado y el repositorio se encuentra en /opt/xpadneo. ¿Quieres buscar nuevas actualizaciones?\n"; then
             git config --global --ad safe.directory /opt/xpadneo
             cd /opt/xpadneo
             sudo git pull && sudo ./update.sh
@@ -480,7 +483,7 @@ function install_xbox_controllers() {
         cd "$current_dir" && menu
     fi
 
-    sleep 4 && main
+    sleep 2 && main
 }
 
 function install_rcv11x_config() {
@@ -504,6 +507,9 @@ function install_rcv11x_config() {
         cp -rv config/kitty/* "$HOME/.config/kitty"
         cp -rv config/.nano "$HOME"
         cp -rv config/.nanorc "$HOME"
+        echo -e "\n${purple}[!] Instalando y configurando prompt starship...${default}\n"
+        curl -sS https://starship.rs/install.sh | sh
+        cp -r config/starship.toml "$HOME"
         sleep 2
         echo -e "\n${purple}[!] Aplicando temas de mouse, wallpaper y otras configuraciones...${default}\n"
         cp -rv config/.icons/* "$HOME/.icons/"
@@ -516,4 +522,14 @@ function install_rcv11x_config() {
             echo "[services][kitty.desktop]"
             echo "_launch=Meta+Return"
         } >> "$HOME/.config/kglobalshortcutsrc"
+}
+
+function install_essential_packages(){
+
+    gum style \
+            --foreground "#ff0000" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "A continuacion se van a instalar paquetes esenciales"
+    press_any_key
+    sudo dnf install -y htop zsh &> /dev/null
+
 }

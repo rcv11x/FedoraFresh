@@ -1,8 +1,13 @@
+ # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="afowler"
+# ZSH_THEME="afowler"
+# ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -122,7 +127,9 @@ alias reloadshell="source ~/.zshrc"
 alias editshell="nano ~/.zshrc"
 alias editterm="nano ~/.config/kitty/kitty.conf"
 alias h='history'
+alias rustscan='docker run -it --rm --name rustscan rustscan/rustscan:2.1.1'
 
+# Functions
 # Functions
 function detect_distro_icon(){
         distro_name=$(cat /etc/os-release | grep -w "ID" | awk -F'=' '{print $2}' | sed 's/"//g')
@@ -286,8 +293,12 @@ function tra() {
 
 }
 
-#export PYENV_ROOT="$HOME/.pyenv"
-#[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-#eval "$(pyenv init --path)"
-#eval "$(pyenv init -)"
-#eval "$(pyenv virtualenv-init -)"
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+# eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+# eval "$(pyenv virtualenv-init -)"
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+# [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+eval "$(starship init zsh)"
