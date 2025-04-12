@@ -105,9 +105,8 @@ gpgcheck=1
 gpgkey=https://repo.charm.sh/yum/gpg.key
 EOF
 
-        sudo rpm --import https://repo.charm.sh/yum/gpg.key && sudo dnf install -y gum 2> /dev/null
+        sudo rpm --import https://repo.charm.sh/yum/gpg.key && sudo dnf install -y gum &> /dev/null
     fi
-    menu
 }
 
 function check_deps() {
