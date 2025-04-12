@@ -40,7 +40,8 @@ openvpn VPN OpenVPN"
 nodejs Entorno de ejecución de JavaScript
 docker Plataforma de contenedores
 python3 Lenguaje de programación Python
-gcc Compilador de C/C++"
+gcc Compilador de C/C++
+shellcheck ShellCheck, a static analysis tool for shell scripts"
 
     [Ciberseguridad/Pentesting]="nmap Escaner de red
 hashcat Recuperacion avanzada de contraseñas / cracking"

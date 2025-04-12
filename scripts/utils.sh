@@ -7,6 +7,8 @@ source "../fedorafresh.sh"
 
 # -- Colors and Vars-- #
 
+prompt=" fedorafresh >> "
+
 default="\e[0m"
 red="\e[0;31m"
 blue="\e[0;34m"
@@ -16,12 +18,15 @@ yellow="\e[0;33m"
 purple="\e[0;35m"
 white="\e[0;37m"
 black="\e[0;30m"
-prompt=" fedorafresh >> "
 
+
+current_dir=$(pwd)
+pictures_dir="$(xdg-user-dir PICTURES)"
+fonts_dir=/usr/local/share/fonts/custom/
 fedora_version=$(cat /etc/os-release | grep -i "VERSION_ID" | awk -F'=' '{print $2}')
 fedora_variant=$(cat /etc/os-release | grep -w "VARIANT" | awk -F'=' '{print $2}' | sed 's/"//g')
-current_dir=$(pwd)
 iosevka_repo_url="https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
+default_dnf_parallel=10
 
 
 function stop_script() {
@@ -86,6 +91,27 @@ function speed_test() {
     fi
 }
 
+function check_gum_installed() {
+
+    if [[ -f /etc/yum.repos.d/charm.repo ]]; then          
+        return 0         
+    else
+        echo -e "\n${yellow}⚠ gum no ha sido encontrado y es necesario para la ejecucion del script, a continuacion se va a instalar\n${default}"
+        press_any_key
+        sudo tee /etc/yum.repos.d/charm.repo > /dev/null <<-EOF
+[charm]
+name=Charm
+baseurl=https://repo.charm.sh/yum/
+enabled=1
+gpgcheck=1
+gpgkey=https://repo.charm.sh/yum/gpg.key
+EOF
+
+        sudo rpm --import https://repo.charm.sh/yum/gpg.key && sudo dnf install -y gum
+    fi
+    menu
+}
+
 function check_deps() {
 
     gum style \
@@ -93,10 +119,10 @@ function check_deps() {
 	--align center --width 50 --margin "1 2" --padding "2 4" \
 	'Checkeando dependencias...' && sleep 2
 
-    local paquetes=("newt")
+    local paquetes=("newt" "gum")
 
     for paquete in "${paquetes[@]}"; do
-        if ! dnf list installed "$paquete" &>/dev/null; then
+        if ! dnf list --installed "$paquete" &>/dev/null; then
             echo -e "${red}✗ ${default} No se ha encontrado el paquete ${paquete}. Instalando..."
             sudo dnf install -y "$paquete"
             echo -e "${green}✓ ${default}Paquete ${paquete} instalado!"
@@ -116,9 +142,9 @@ function check_deps() {
     fi
 
     if [ "$(mokutil --sb-state | awk '{print $2}')" = "enabled" ]; then
-        echo -e "${yellow} ⚠ ${default}Secure boot habilitado${default}"; sleep 1
+        echo -e "${yellow} ⚠ ${default}Secure boot: habilitado${default}"; sleep 1
     else
-        echo -e "${yellow} ⚠ ${default}Secure boot deshabilitado${default}"; sleep 1
+        echo -e "${yellow} ⚠ ${default}Secure boot: deshabilitado${default}"; sleep 1
     fi
 
     sleep 2
@@ -134,8 +160,9 @@ function check_rpm_fusion() {
         echo
         custom_banner_text "${yellow}Añadiendo el repositorio de RPM Fusion...${default}"
         sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-"$(rpm -E %fedora)".noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"$(rpm -E %fedora)".noarch.rpm > /dev/null 2>&1
-        sudo dnf check-update
+        # sudo dnf check-update
         sudo dnf group upgrade -y core
+        sudo dnf4 group update -y core
         msg_ok
         sleep 1.5
     fi
@@ -153,6 +180,8 @@ function check_cpu_type() {
         custom_banner_text "${yellow}[!]CPU AMD detectado, instalando codecs necesarios...${default}"
         sudo dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
         sudo dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
+        sudo dnf swap -y mesa-va-drivers.i686 mesa-va-drivers-freeworld.i686
+        sudo dnf swap -y mesa-vdpau-drivers.i686 mesa-vdpau-drivers-freeworld.i686
     else
         echo "${yellow}[Error]${default} CPU no reconocido"
         
@@ -163,18 +192,21 @@ function check_cpu_type() {
 function install_multimedia() {
     custom_banner_text "${yellow}Instalando codecs multimedia completos para un buen funcionamiento y soporte${default}"; sleep 2
     check_rpm_fusion
+    sudo dnf4 group upgrade -y multimedia
     sudo dnf swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
-    sudo dnf group install -y multimedia
+    # sudo dnf group install -y multimedia
     sudo dnf update -y @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
-    sudo dnf install -y @sound-and-video
-    sudo dnf update -y @sound-and-video
+    # sudo dnf install -y @sound-and-video
+    sudo dnf group install -y sound-and-video
+    # sudo dnf update -y @sound-and-video
     sleep 2
     echo -e "\n${purple}[!] Instalando codecs para la Decodificacion de Video...${default}\n"
-    sudo dnf -y install ffmpeg ffmpeg-libs libva libva-utils
+    sudo dnf install -y ffmpeg-libs libva libva-utils
     check_cpu_type
     echo -e "\n${purple}[!] Instalando y configurando OpenH264 para Firefox...${default}\n"
     sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
     sudo dnf config-manager -y setopt fedora-cisco-openh264.enabled=1
+    sudo rm -f /usr/lib64/firefox/browser/defaults/preferences/firefox-redhat-default-prefs.js
 }
 
 function install_gpu_drivers() {
@@ -227,8 +259,8 @@ function view_system_info() {
     echo -e "${white}- RAM: ${cyan}$total_ram ${default}"
     echo -e "${white}- GPU: ${cyan}$gpu_info ${default}"
     echo -e "${white}- Kernel Version: ${cyan}$kernel_version ${default}"
-    echo -e "${white}- Distro: ${cyan}$XDG_CURRENT_DESKTOP $(plasmashell --version | awk '{print $2}') ($XDG_SESSION_TYPE) ${default}"
-    echo -e "${white}- Secure boot: ${cyan}$(mokutil --sb-state | awk '{print $2}')"
+    echo -e "${white}- Distro: ${cyan}$XDG_CURRENT_DESKTOP $(plasmashell --version 2>/dev/null | awk '{print $2}') ($XDG_SESSION_TYPE) ${default}"
+    echo -e "${white}- Secure boot: ${cyan}$(mokutil --sb-state | awk '{print $2}') ${default}"
     press_any_key
     clear
 }
@@ -268,7 +300,7 @@ function install_flatpak() {
 
 function dnf_hacks() {
     echo -e "\n${purple}[!] Configurando DNF...${default}\n"; sleep 1.5
-    echo "max_parallel_downloads=15" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
+    echo "max_parallel_downloads=$default_dnf_parallel" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
 }
 
 function apply_grub_themes() {
@@ -400,56 +432,36 @@ function optimization() {
 function install_xbox_controllers() {
 
     echo -e "${yellow} A continuacion se van instalar los controladores necesarios para que funcionen correctamente los mandos de Xbox (360, One, One X/S) tanto cableados como por bluetooth\n\n${default}- [!] Para ello es importante tener en cuenta que si tienes habilitado el Secure Boot (Modo seguro) es posible que no se instalen correctamente los drivers para los mandos inalambricos ya que no estan firmados ¿Quieres continuar y empezar la instalacion? [yY/nN]\n${default}";
-    read -r -p "${prompt}" yesno
-    if [[ $yesno == "n" || $yesno == "N" ]]; then
-        clear
-        main
-    elif [[ $yesno == "y" || $yesno == "Y" ]]; then
-        if [ "$(mokutil --sb-state | awk '{print $2}')" = "enabled" ]; then
-            echo -e "${yellow} Se ha detectado que tienes secure boot habilitado, por lo tanto xpadneo (Controlador para el gamepad inalámbrico de Xbox One) no funcionará ya que no está firmado.${default}"
-            press_any_key
-        else
-            if [[ -f /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:sentry:xone.repo || -f /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:sentry:xpadneo.repo ]]; then
-                if dnf list --installed | grep -q "xone" && dnf list --installed | grep -q "xone"; then 
-                    clear
-                    echo -e "[!] Se han encontrado los drivers de xone y xpadneo instalados en el sistema. Omitiendo... \n$(msg_ok)"; sleep 5
-                    main
-                fi
-            else
-                echo -e "${yellow} Instalando los drivers xone y xpadneo para los controladores de Xbox...${default}"; sleep 2
-                echo -e "\nCheckeando dependencias...\n"; sleep 1.5
-                dnf list --installed | grep -q "lpf"
+    
+    local paquetes=("dkms" "make" "bluez" "bluez-tools" "kernel-devel-`uname -r`" "kernel-headers")
 
-                if [[ "$?" -ne 0 ]]; then 
-                    echo "✗ No se ha encontrado el paquete 'lpf' - instalandolo..."
-                    sudo dnf install -y lpf 2> /dev/null
-                fi
-                
-                sudo dnf copr enable -y sentry/xpadneo
-                sudo dnf install -y xpadneo
-                sudo dnf copr enable -y sentry/xone
-                sudo dnf install -y xone lpf-xone-firmware
-                echo -e "${yellow} A continuacion se van a firmar, construir y instalar los modulos de xone (Necesario para los mandos de Xbox One y Xbox Series X|S). Si se le hace alguna pregunta debe responder todo con 'y'${default}"
-                press_any_key
-                echo -e "${cyan}Aprobando licencia y verificando requisitos del firmware...${default}"
-                sudo lpf approve xone-firmware
-                msg_ok
-                echo -e "${cyan}Descargando y construyendo el firmware.....${default}"
-                sudo lpf build xone-firmware
-                msg_ok
-                echo -e "${cyan}Instalando el firmware en el sistema...${default}"
-                sudo lpf install xone-firmware
-                msg_ok
-                if kdialog --yesno "Se acaban de instalar exitosamente los controladores para los mandos de Xbox, ahora debes reiniciar el PC para que se cargen los modulos." \
-            --yes-label "Reiniciar ahora" --no-label "Cancelar" 2> /dev/null; then
-                    sudo reboot now
-                else
-                    main
-                fi
-            fi
+    for paquete in "${paquetes[@]}"; do
+        if ! dnf list --installed "$paquete" &>/dev/null; then
+            echo -e "${red}✗ ${default} No se ha encontrado el paquete ${paquete}. Instalando..."
+            sudo dnf install -y "$paquete 2> /dev/null"
+            echo -e "${green}✓ ${default}Paquete ${paquete} instalado!"
+        else
+            echo -e "${green}✓ ${default}Paquete ${paquete} ya está instalado."
+        fi
+    done
+
+    if dkms status | grep -q "xpadneo" && [[ -f "/opt/xpadneo/install.sh" ]]; then
+        if gum confirm "✓ xpadneo ya está instalado y el repositorio se encuentra en /opt/xpadneo. ¿Quieres buscar nuevas actualizaciones?"; then
+            cd /opt/xpadneo
+            git pull && sudo ./update.sh
+        else
+            echo -e "Volviendo al menu principal..."; sleep 2
         fi
     else
-        main 
+        echo "✗ xpadneo no está correctamente instalado o falta el repositorio. Procediendo con la instalación..."
+        sudo git clone https://github.com/atar-axis/xpadneo.git /opt/xpadneo
+        cd /opt/xpadneo
+        sudo ./install.sh
+        cd "$current_dir" && menu
     fi
 
+
+
+
+    sleep 4 && main
 }

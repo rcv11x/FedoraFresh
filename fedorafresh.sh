@@ -18,7 +18,8 @@ function show_banner() {
     echo -e " | |_ / _ \/ _' |/ _ \| '__/ _' | |_ | '__/ _ \/ __| '_ \  "
     echo -e " |  _|  __/ (_| | (_) | | | (_| |  _|| | |  __/\__ \ | | | "
     echo -e " |_|  \___|\__,_|\___/|_|  \__,_|_|  |_|  \___||___/_| |_| \n"
-    echo -e "Hola! $(whoami) | Fedora: ${fedora_variant} v${fedora_version} \n\n" 
+    echo -e "Hola! $(whoami) | Fedora: ${fedora_variant} v${fedora_version}"
+    echo -e "Estas en: $current_dir\n\n" 
 
 }
 
@@ -44,13 +45,20 @@ function installation() {
         main
     else
         clear
-        custom_banner_text "${yellow} EMPEZANDO INSTALACION ${default}\n"; sleep 2; clear
+        gum style \
+            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 50 \
+            "EMPEZANDO INSTALACION..."; sleep 5;  clear
         
-        sudo mkdir -pv /usr/local/share/fonts/custom/
-        mkdir -pv "$HOME/Imágenes/wallpapers/"
+        sudo mkdir -pv $fonts_dir
+        mkdir -pv "${pictures_dir}/wallpapers/"
         mkdir -pv "$HOME/.icons"
         mkdir -pv "$HOME/.config/kitty"
         mkdir -pv "$current_dir/fonts/"
+
+        echo -e "\n${purple}[!] Establece un nombre de host para tu equipo ¿Que nombre le quieres poner? Ej. (mipc, pc-juan...)${default}\n"
+        hostname_name=$(gum input --placeholder="Nombre de tu equipo... " --cursor.mode="blink")
+        sudo hostnamectl set-hostname "$hostname_name"
+
         dnf_hacks
         check_rpm_fusion
         install_multimedia
@@ -71,8 +79,8 @@ function installation() {
         echo -e "\n${purple}[!] Instalando plugins de ZSH para $USER y root...${default}\n"
         sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended; sleep 2
         sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-        git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"/plugins/zsh-syntax-highlighting
+        git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"/plugins/zsh-autosuggestions
         sudo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git /root/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
         sudo git clone https://github.com/zsh-users/zsh-autosuggestions /root/.oh-my-zsh/custom/plugins/zsh-autosuggestions
         sudo chsh -s "$(which zsh)" "$USER"
@@ -99,9 +107,6 @@ function installation() {
             echo "_launch=Meta+Return"
         } >> "$HOME/.config/kglobalshortcutsrc"
 
-        echo -e "\n${purple}[!] Estableciendo un nombre de HOST para la maquina ¿Que nombre le quieres poner? Ej. (mipc, pc-juan...)${default}\n"
-        read -r -p "Hostname: " opcion
-        sudo hostnamectl set-hostname "$opcion"
         install_gpu_drivers
         update_firmware
         
@@ -123,6 +128,7 @@ function main(){
     else
         while true; do
 
+            check_gum_installed
             show_banner
             menu
 
@@ -133,7 +139,7 @@ function main(){
                     ;;
                 2)
                     clear
-                    install_packages
+                    install_dnf_packages
                     ;;
                 3)
                     clear

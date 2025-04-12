@@ -134,6 +134,6 @@ function show_packages() {
     fi
 }
 
-function install_packages() {
+function install_dnf_packages() {
     show_categories
 }
