@@ -508,8 +508,9 @@ function install_rcv11x_config() {
         cp -rv config/.nano "$HOME"
         cp -rv config/.nanorc "$HOME"
         echo -e "\n${purple}[!] Instalando y configurando prompt starship...${default}\n"
-        curl -sS https://starship.rs/install.sh | sh
-        cp -r config/starship.toml "$HOME"
+        wget https://starship.rs/install.sh && chmod +x install.sh
+        sh install.sh -y
+        cp -rv config/starship.toml "$HOME/.config"
         sleep 2
         echo -e "\n${purple}[!] Aplicando temas de mouse, wallpaper y otras configuraciones...${default}\n"
         cp -rv config/.icons/* "$HOME/.icons/"
@@ -530,6 +531,8 @@ function install_essential_packages(){
             --foreground "#ff0000" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
             "A continuacion se van a instalar paquetes esenciales"
     press_any_key
-    sudo dnf install -y htop zsh &> /dev/null
+
+    gum spin --spinner dot --title "Instalando paquetes..." -- sudo dnf install -y htop zsh lsd bat &> /dev/null
+    
 
 }

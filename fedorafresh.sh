@@ -66,23 +66,14 @@ function installation() {
         check_rpm_fusion
         install_multimedia
         install_flatpak
-
-        echo -e "\n${purple}[!] Instalando VS Code...${default}\n"
-        sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-        echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
-        dnf check-update
-        sudo dnf -y install code
-        echo -e "$(msg_ok) Listo.\n"
-
         install_gpu_drivers
         update_firmware
         install_essential_packages
         
-        if kdialog --title "Instalacion terminada" --yesno "Instalacion exitosa!\n\n Ahora espera de 5 a 10 minutos (en el caso de que tengas una gpu nvidia) ya que se estarán compilando los modulos del kernel, de lo contrario puedes reiniciar\n - El PC se reiniciará automaticamente en 5 minutos" \
+        if kdialog --title "Instalacion terminada" --yesno "Instalacion exitosa!, puedes cancelar para volver al script o reiniciar el PC" \
            --yes-label "Reiniciar ahora" --no-label "Cancelar" 2> /dev/null; then
             sudo reboot now
         else
-            sudo shutdown -r +5
             clear
         fi
     fi
