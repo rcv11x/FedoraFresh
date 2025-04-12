@@ -283,11 +283,7 @@ function install_fonts() {
         curl -sSL -o $current_dir/fonts/FiraCode.zip     \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*FiraCode.zip\"' | cut -d'\"' -f4)\"
     "
 
-    gum spin --spinner dot --title "Extrayendo fuentes en `$fonts_dir`..." -- bash -c "
-        for font in $current_dir/fonts/*.zip; do
-            sudo unzip -o \"\$font\" -d \"$fonts_dir\" >/dev/null
-        done
-    "
+    gum spin --spinner dot --title "Extrayendo fuentes en `$fonts_dir`..." -- bash -c "for font in $current_dir/fonts/*.zip; do sudo unzip -o \"\$font\" -d \"$fonts_dir\" >/dev/null; done"
 
     rm -rf ./fonts
     sudo rm /usr/local/share/fonts/custom/*.md /usr/local/share/fonts/custom/*.txt
