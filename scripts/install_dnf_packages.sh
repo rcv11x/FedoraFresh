@@ -3,8 +3,6 @@
 # Creado por: rcv11x (Alejandro M) (2024)
 # Licencia: MIT
 
-source "../scripts/utils.sh"
-# source "../scripts/pkg_list.sh"
 
 # Función para mostrar menú de categorías
 function show_categories() {

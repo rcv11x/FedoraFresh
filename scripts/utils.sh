@@ -3,7 +3,6 @@
 # Creado por: rcv11x (Alejandro M) (2024)
 # Licencia: MIT
 
-source "../fedorafresh.sh"
 
 # -- Colors and Vars-- #
 
@@ -19,10 +18,9 @@ purple="\e[0;35m"
 white="\e[0;37m"
 black="\e[0;30m"
 
-
 current_dir=$(pwd)
 pictures_dir="$(xdg-user-dir PICTURES)"
-fonts_dir=/usr/local/share/fonts/custom/
+fonts_dir=/usr/local/share/fonts/custom
 fedora_version=$(cat /etc/os-release | grep -i "VERSION_ID" | awk -F'=' '{print $2}')
 fedora_variant=$(cat /etc/os-release | grep -w "VARIANT" | awk -F'=' '{print $2}' | sed 's/"//g')
 iosevka_repo_url="https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
@@ -114,6 +112,8 @@ EOF
 
 function check_deps() {
 
+    mkdir -p $current_dir/fonts/
+
     gum style \
 	--foreground 212 --border-foreground 212 --border double \
 	--align center --width 50 --margin "1 2" --padding "2 4" \
@@ -134,9 +134,8 @@ function check_deps() {
     if ls /usr/local/share/fonts/custom/IosevkaTermNerdFont-*.ttf 1> /dev/null 2>&1; then
         echo -e "${green}✓ ${default}Fuentes parcheadas encontradas!"; sleep 1
     else
-        echo -e "${red}✗ ${default} No se ha encontrado las fuentes parcheadas. Instalandolas...\n"
-        curl -sSL -o ./fonts/IosevkaTerm.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*IosevkaTerm.zip"' | cut -d'"' -f4)" 2> /dev/null
-        sudo unzip -o "./fonts/$font" -d /usr/local/share/fonts/custom
+        echo -e "${red}✗ ${default} No se han encontrado las fuentes parcheadas necesarias. Instalandolas...\n"
+        install_fonts
         rm -rf ./fonts
         echo -e "${green}✓ ${default}Fuentes instaladas!"; sleep 1
     fi
@@ -274,16 +273,16 @@ function update_firmware() {
 }
 
 function install_fonts() {
-    echo -e "\n${purple}[!] Descargando e instalando fuentes parcheadas...${default}\n"; sleep 1.5
-    curl -sSL -o ./fonts/Iosevka.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*Iosevka.zip"' | cut -d'"' -f4)"
-    curl -sSL -o ./fonts/IosevkaTerm.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*IosevkaTerm.zip"' | cut -d'"' -f4)"
-    curl -sSL -o ./fonts/ZedMono.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*ZedMono.zip"' | cut -d'"' -f4)"
-    curl -sSL -o ./fonts/Meslo.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*Meslo.zip"' | cut -d'"' -f4)"
-    curl -sSL -o ./fonts/FiraCode.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*FiraCode.zip"' | cut -d'"' -f4)"
+    echo -e "${purple}[!] Descargando e instalando fuentes parcheadas...${default}\n"; sleep 1.5
+    curl -sSL -o $current_dir/fonts/Iosevka.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*Iosevka.zip"' | cut -d'"' -f4)"
+    curl -sSL -o $current_dir/fonts/IosevkaTerm.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*IosevkaTerm.zip"' | cut -d'"' -f4)"
+    curl -sSL -o $current_dir/fonts/ZedMono.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*ZedMono.zip"' | cut -d'"' -f4)"
+    curl -sSL -o $current_dir/fonts/Meslo.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*Meslo.zip"' | cut -d'"' -f4)"
+    curl -sSL -o $current_dir/fonts/FiraCode.zip "$(curl -s "$iosevka_repo_url" | grep -o '"browser_download_url": "[^"]*FiraCode.zip"' | cut -d'"' -f4)"
 
-    for font in *.zip; do
-        echo -e "${red}[!] Descomprimiendo fuentes en '/usr/local/share/fonts/custom' ...${default}"; sleep 1
-        sudo unzip -o "./fonts/$font" -d /usr/local/share/fonts/custom
+    for font in $current_dir/fonts/*.zip; do
+        echo -e "${red}[!] Descomprimiendo fuentes en '$fonts_dir' ...${default}"; sleep 1
+        sudo unzip -o "$current_dir/fonts/$font" -d $fonts_dir
         echo -e "$(msg_ok) Listo.\n"
     done
 

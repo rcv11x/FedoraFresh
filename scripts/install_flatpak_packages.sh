@@ -3,7 +3,6 @@
 # Creado por: rcv11x (Alejandro M) (2024)
 # Licencia: MIT
 
-source "../scripts/utils.sh"
 
 function remove_flatpak_data() {
     local package_id="$1"

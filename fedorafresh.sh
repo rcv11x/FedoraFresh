@@ -1,10 +1,9 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # Creado por: rcv11x (Alejandro M) (2024)
 # Licencia: MIT
 
 source "scripts/utils.sh"
-
 source "scripts/install_dnf_packages.sh"
 source "scripts/install_flatpak_packages.sh"
 source "scripts/packages_list.sh"
@@ -63,16 +62,12 @@ function installation() {
         check_rpm_fusion
         install_multimedia
         install_flatpak
-        # echo -e "\n${purple}[!] Instalando paquetes...${default}\n"
-        # sudo dnf install -y "${dnf_packages[@]}"; sleep 1.5
-        # echo -e "$(msg_ok) Listo.\n"
+        
         echo -e "\n${purple}[!] Instalando VS Code...${default}\n"
         sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
         echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
         dnf check-update
         sudo dnf -y install code
-        # sudo dnf config-manager --add-repo https://packages.microsoft.com/yumrepos/edge && sudo dnf update --refresh
-        # sudo dnf install -y microsoft-edge-stable
         echo -e "$(msg_ok) Listo.\n"
 
         # -- CONFIGURACION -- #
@@ -94,7 +89,7 @@ function installation() {
         cp -rv config/.nano "$HOME"
         cp -rv config/.nanorc "$HOME"
         sleep 2
-        install_fonts
+        # install_fonts
         echo -e "\n${purple}[!] Aplicando temas de mouse, wallpaper y otras configuraciones...${default}\n"
         cp -rv config/.icons/* "$HOME/.icons/"
         cp -rv wallpapers/ "$HOME/Imágenes/"
@@ -121,7 +116,7 @@ function installation() {
 }
 
 function main(){
-    clear
+    # clear
     if [[ $(id -u) = 0 || $(whoami) = "root" ]]; then
         echo -e "\n${red}[!] Ejecuta el script sin permisos de sudo\n${default}"
         exit 1
