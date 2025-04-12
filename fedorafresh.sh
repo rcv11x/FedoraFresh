@@ -47,15 +47,18 @@ function installation() {
         clear
         gum style \
             --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 50 \
-            "EMPEZANDO INSTALACION..."; sleep 5;  clear
-        
-        sudo mkdir -pv $fonts_dir
-        mkdir -pv "${pictures_dir}/wallpapers/"
-        mkdir -pv "$HOME/.icons"
-        mkdir -pv "$HOME/.config/kitty"
-        mkdir -pv "$current_dir/fonts/"
+            "EMPEZANDO INSTALACION..."; sleep 3
 
-        echo -e "\n${purple}[!] Establece un nombre de host para tu equipo ¿Que nombre le quieres poner? Ej. (mipc, pc-juan...) Importante! No incluyas espacios o caracteres raros ${default}\n"
+
+        sudo mkdir -p $fonts_dir
+        mkdir -p "${pictures_dir}/wallpapers/"
+        mkdir -p "$HOME/.icons"
+        mkdir -p "$HOME/.config/kitty"
+        mkdir -p "$current_dir/fonts/"
+
+        gum style \
+            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "Establece un nombre de host para tu equipo Ej. (mipc, pc-juan...)" "⚠<fe0f> Ten cuidado con los espacios y caracteres raros"
         hostname_name=$(gum input --placeholder="Nombre de tu equipo... " --cursor.mode="blink")
         sudo hostnamectl set-hostname "$hostname_name"
 
@@ -71,7 +74,6 @@ function installation() {
         sudo dnf -y install code
         echo -e "$(msg_ok) Listo.\n"
 
-        install_rcv11x_config
         install_gpu_drivers
         update_firmware
         

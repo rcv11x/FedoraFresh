@@ -111,7 +111,7 @@ EOF
 
 function check_deps() {
 
-    mkdir -p $current_dir/fonts/
+    mkdir -p "$current_dir/fonts/"
 
     gum style \
 	--foreground 212 --border-foreground 212 --border double \
@@ -123,7 +123,7 @@ function check_deps() {
     for paquete in "${paquetes[@]}"; do
         if ! dnf list --installed "$paquete" &>/dev/null; then
             echo -e "${red}✗ ${default} No se ha encontrado el paquete ${paquete}. Instalando..."
-            sudo dnf install -y $paquete &> /dev/null
+            sudo dnf install -y "$paquete" &> /dev/null
             echo -e "${green}✓ ${default}Paquete ${paquete} ya instalado!"
         else
             echo -e "${green}✓ ${default}Paquete ${paquete} ya se encuentra instalado!"
@@ -133,35 +133,38 @@ function check_deps() {
     if ls /usr/local/share/fonts/custom/IosevkaTermNerdFont-*.ttf 1> /dev/null 2>&1; then
         echo -e "${green}✓ ${default}Fuentes parcheadas encontradas!"; sleep 1
     else
-        echo -e "${red}✗ ${default} No se han encontrado las fuentes parcheadas necesarias\n"
+        echo -e "${red}✗ ${default}No se han encontrado las fuentes parcheadas necesarias\n"
         install_fonts
         rm -rf ./fonts
         echo -e "${green}✓ ${default}Fuentes instaladas!"; sleep 1
     fi
 
     if [ "$(mokutil --sb-state | awk '{print $2}')" = "enabled" ]; then
-        echo -e "${yellow} ⚠ ${default}Secure boot: habilitado${default}"; sleep 1
+        echo -e "${yellow}⚠ ${default}Secure boot: habilitado${default}"; sleep 1
     else
-        echo -e "${yellow} ⚠ ${default}Secure boot: deshabilitado${default}"; sleep 1
+        echo -e "${yellow}⚠ ${default}Secure boot: deshabilitado${default}"; sleep 1
     fi
 
     sleep 2
 }
 
 function check_rpm_fusion() {
+    clear
     if [[ -f /etc/yum.repos.d/rpmfusion-free.repo || -f /etc/yum.repos.d/rpmfusion-nonfree.repo ]]; then
         echo
-        echo -e "${red}[!] El repositorio de RPM Fusion ya se encuentra instalado.${default}\n"
-        echo -e "$(msg_ok) Omitiendo...\n"
-        sleep 1.5
+        gum style \
+            --foreground "#ff0000" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "[!] El repositorio de RPM Fusion ya se encuentra instalado."
+        echo -e "$(msg_ok) Omitiendo...\n"; sleep 1.5
     else
         echo
-        custom_banner_text "${yellow}Añadiendo el repositorio de RPM Fusion...${default}"
+        gum style \
+            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "Añadiendo el repositorio de RPM Fusion..."
         sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-"$(rpm -E %fedora)".noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"$(rpm -E %fedora)".noarch.rpm > /dev/null 2>&1
-        # sudo dnf check-update
         sudo dnf group upgrade -y core
         sudo dnf4 group update -y core
-        msg_ok
+        echo -e "$(msg_ok) Repositorio RPM instalado!\n"; sleep 1.5
         sleep 1.5
     fi
 }
@@ -170,25 +173,33 @@ function check_cpu_type() {
 
     if grep -q "Intel" /proc/cpuinfo; then
 
-        custom_banner_text "${yellow}[!] CPU Intel detectado, instalando codecs necesarios...${default}"
+        gum style \
+            --foreground "#FFFF00" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "CPU Intel detectado, instalando codecs necesarios..."; sleep 1.5
         sudo dnf swap -y libva-intel-media-driver intel-media-driver --allowerasing
 
     elif grep -q "AMD" /proc/cpuinfo; then
 
-        custom_banner_text "${yellow}[!]CPU AMD detectado, instalando codecs necesarios...${default}"
+        gum style \
+            --foreground "#FFFF00" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "CPU AMD detectado, instalando codecs necesarios..."; sleep 1.5
         sudo dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
         sudo dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
         sudo dnf swap -y mesa-va-drivers.i686 mesa-va-drivers-freeworld.i686
         sudo dnf swap -y mesa-vdpau-drivers.i686 mesa-vdpau-drivers-freeworld.i686
     else
-        echo "${yellow}[Error]${default} CPU no reconocido"
+        gum style \
+            --foreground "#ff0000" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "[Error] CPU no reconocido"; sleep 1.5
         
     fi
 }
 
 # Instalacion de Codecs Multimedia
 function install_multimedia() {
-    custom_banner_text "${yellow}Instalando codecs multimedia completos para un buen funcionamiento y soporte${default}"; sleep 2
+    gum style \
+            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "Instalando codecs multimedia completos para un buen funcionamiento y soporte..."; sleep 2
     check_rpm_fusion
     sudo dnf4 group upgrade -y multimedia
     sudo dnf swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
@@ -198,10 +209,14 @@ function install_multimedia() {
     sudo dnf group install -y sound-and-video
     # sudo dnf update -y @sound-and-video
     sleep 2
-    echo -e "\n${purple}[!] Instalando codecs para la Decodificacion de Video...${default}\n"
+    gum style \
+            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "Instalando codecs para la Decodificacion de Video..."; sleep 2
     sudo dnf install -y ffmpeg-libs libva libva-utils
     check_cpu_type
-    echo -e "\n${purple}[!] Instalando y configurando OpenH264 para Firefox...${default}\n"
+    gum style \
+            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "Instalando y configurando OpenH264 para Firefox..."; sleep 2
     sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
     sudo dnf config-manager -y setopt fedora-cisco-openh264.enabled=1
     sudo rm -f /usr/lib64/firefox/browser/defaults/preferences/firefox-redhat-default-prefs.js
@@ -274,22 +289,22 @@ function update_firmware() {
 function install_fonts() {
     sudo mkdir -p $fonts_dir
 
-    gum spin --spinner dot --title "Descargando fuentes parcheadas necesarias..." -- bash -c "
+    gum spin --spinner dot --title "Descargando fuentes parcheadas..." -- bash -c "
         curl -sSL -o $current_dir/fonts/Iosevka.zip     \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*Iosevka.zip\"' | cut -d'\"' -f4)\"
         curl -sSL -o $current_dir/fonts/IosevkaTerm.zip \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*IosevkaTerm.zip\"' | cut -d'\"' -f4)\"
         curl -sSL -o $current_dir/fonts/ZedMono.zip      \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*ZedMono.zip\"' | cut -d'\"' -f4)\"
         curl -sSL -o $current_dir/fonts/Meslo.zip        \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*Meslo.zip\"' | cut -d'\"' -f4)\"
         curl -sSL -o $current_dir/fonts/FiraCode.zip     \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*FiraCode.zip\"' | cut -d'\"' -f4)\"
-    "; sleep 2
+    " && echo -e "$(msg_ok) Fuentes Descargadas"; sleep 2
 
     gum spin --spinner dot --title "Extrayendo fuentes en '$fonts_dir' ..." -- bash -c '
     for font in "'"$current_dir"'/fonts/"*.zip; do
         sudo unzip -o "$font" -d "'"$fonts_dir"'" >/dev/null
     done
-    ' && echo -e "$(msg_ok) Fuentes extraídas correctamente.\n"; sleep 2
+    ' && echo -e "$(msg_ok) Fuentes extraídas.\n"; sleep 2
 
 
-    rm -rf $current_dir/fonts
+    rm -rf "$current_dir/fonts"
     sudo rm /usr/local/share/fonts/custom/*.md /usr/local/share/fonts/custom/*.txt
     sudo fc-cache &> /dev/null
 }
@@ -301,7 +316,9 @@ function install_flatpak() {
 }
 
 function dnf_hacks() {
-    echo -e "\n${purple}[!] Configurando DNF...${default}\n"; sleep 1.5
+    gum style \
+            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "Optimizando el gestor de paquetes dnf para una mayor velocidad..."; sleep 2
     echo "max_parallel_downloads=$dnf_parallel_downloads" | sudo tee -a /etc/dnf/dnf.conf > /dev/null
 }
 
@@ -440,7 +457,7 @@ function install_xbox_controllers() {
     for paquete in "${paquetes[@]}"; do
         if ! dnf list --installed "$paquete" &>/dev/null; then
             echo -e "${red}✗ ${default} No se ha encontrado el paquete ${paquete}. Instalando..."
-            sudo dnf install -y $paquete 2> /dev/null
+            sudo dnf install -y "$paquete" &> /dev/null
             echo -e "${green}✓ ${default}Paquete ${paquete} instalado!"
         else
             echo -e "${green}✓ ${default}Paquete ${paquete} ya está instalado."
