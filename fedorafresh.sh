@@ -3,12 +3,10 @@
 # Creado por: rcv11x (Alejandro M) (2024)
 # Licencia: MIT
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-
-source "$SCRIPT_DIR/scripts/utils.sh"
-source "$SCRIPT_DIR/scripts/install_dnf_packages.sh"
-source "$SCRIPT_DIR/scripts/install_flatpak_packages.sh"
-source "$SCRIPT_DIR/scripts/packages_list.sh"
+source "scripts/utils.sh"
+source "scripts/install_dnf_packages.sh"
+source "scripts/install_flatpak_packages.sh"
+source "scripts/packages_list.sh"
 
 trap stop_script INT
 
@@ -141,39 +139,6 @@ function main(){
     fi
     
 }
-
-function show_help() {
-  echo "Usage: ./fedorafresh.sh [options]"
-  echo ""
-  echo "Options:"
-  echo "  -h, --help       Show this help menu"
-  echo "  -i, --install    Instalar el repo en el directorio HOME"
-  echo "  -u, --update     Buscar actualizaciones y actualizar el repositorio"
- 
-  exit 0
-}
-
-function update_repo() {
-  echo "🔄 Buscando actualizaciones del repositorio..."
-  git pull
-  echo "✅ Repositorio actualizado."
-  exit 0
-}
-
-function install_home_dir() {
-
-    if [[ -f "$HOME/.fedorafresh" && -f "$HOME/.fedorafresh/fedorafresh.sh" ]]; then         
-        gum style \
-            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
-            "✅ FedoraFresh ya se encuentra instalado en '$HOME/.fedorafresh'"
-        return 0         
-    else
-        git clone https://github.com/rcv11x/FedoraFresh.git "$HOME/.fedorafresh"
-        sudo ln -sf "$HOME/.fedorafresh/fedorafresh.sh" /usr/local/bin/fedorafresh
-        exec $SHELL
-    fi
-}
-
 case "$1" in
   -h|--help)
     show_help
@@ -184,13 +149,12 @@ case "$1" in
   -u|--update)
     update_repo
     ;;
-  "" )
-    echo "🔧 Ejecutando menú principal de FedoraFresh..."
-    # Aquí va tu menú normal si no se pasan parámetros
+   "" )
+    main
     ;;
   *)
-    echo "❌ Opción no reconocida: $1"
-    echo "Usa --help para ver las opciones disponibles."
+    echo "❌ Parametro no valido o no existe: $1"
+    echo "Usa --help para ver los parametros disponibles."
     exit 1
     ;;
 esac

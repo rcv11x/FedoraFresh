@@ -43,11 +43,7 @@ function press_any_key() {
 }
 
 function custom_banner_text() {
-    echo -e "============================================================================================================"
-    echo -e "=                                                                                                           "
-    echo -e "=   $1                                                                                                      " 
-    echo -e "=                                                                                                           "
-    echo -e "============================================================================================================"
+    gum style --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 "$1"
 }
 
 
@@ -489,9 +485,9 @@ function install_xbox_controllers() {
 function install_rcv11x_config() {
 
         # -- CONFIGURACION -- #
-        echo -e "\n${purple}[!] Instalando plugins de ZSH para $USER y root...${default}\n"
+        custom_banner_text "Instalando plugins de ZSH para $USER y root..."
         sudo dnf install kitty zsh -y
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended; sleep 2
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
         sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
         git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"/plugins/zsh-syntax-highlighting
         git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"/plugins/zsh-autosuggestions
@@ -503,16 +499,16 @@ function install_rcv11x_config() {
         cp -rv config/.zshrc "$HOME"
         sudo rm -rf /root/.zshrc
         sudo ln -sfv ~/.zshrc /root/.zshrc
-        echo -e "\n${purple}[!] Configurando Kitty y Nano...${default}\n"
+        custom_banner_text "Copiando configuracion de Kitty y Nano..."; sleep 1
         cp -rv config/kitty/* "$HOME/.config/kitty"
         cp -rv config/.nano "$HOME"
         cp -rv config/.nanorc "$HOME"
-        echo -e "\n${purple}[!] Instalando y configurando prompt starship...${default}\n"
+        custom_banner_text "Instalando y copiando config de Starship..."; sleep 1
         wget https://starship.rs/install.sh && chmod +x install.sh
         sh install.sh -y
         cp -rv config/starship.toml "$HOME/.config"
         sleep 2
-        echo -e "\n${purple}[!] Aplicando temas de mouse, wallpaper y otras configuraciones...${default}\n"
+        custom_banner_text "Aplicando temas de mouse, wallpaper y otras configuraciones..."; sleep 1
         cp -rv config/.icons/* "$HOME/.icons/"
         cp -rv wallpapers/ "$HOME/Imágenes/"
         kwriteconfig6 --file "$HOME"/.config/kcminputrc --group Mouse --key cursorTheme "Bibata-Modern-Ice"
@@ -527,12 +523,49 @@ function install_rcv11x_config() {
 
 function install_essential_packages(){
 
+    local essential_packages=("htop" "zsh" "lsd" "bat")
+
     gum style \
             --foreground "#ff0000" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
-            "A continuacion se van a instalar paquetes esenciales"
-    press_any_key
+            "A continuacion se van a instalar paquetes esenciales"; sleep 2
 
-    gum spin --spinner dot --title "Instalando paquetes..." -- sudo dnf install -y htop zsh lsd bat &> /dev/null
-    
+    gum spin --spinner dot --title "Instalando paquetes..." -- \
+        sudo dnf install -y "${essential_packages[@]}" &> /dev/null
 
+    echo -e "$(msg_ok) Paquetes: ${essential_packages[*]} instalados!"; sleep 1.5
+}
+
+# ------- HELP AND REPO ------- #
+
+function show_help() {
+  echo "Usage: ./fedorafresh.sh [options]"
+  echo ""
+  echo "Options:"
+  echo "  -h, --help       Show this help"
+  echo "  -i, --install    Instalar el repo en el directorio HOME"
+  echo "  -u, --update     Buscar actualizaciones y actualizar el repositorio"
+ 
+  exit 0
+}
+
+function update_repo() {
+  echo "🔄 Buscando actualizaciones..."
+  git pull
+  echo "✅ Repositorio actualizado."
+  exit 0
+}
+
+function install_home_dir() {
+
+    if [[ -f "$HOME/.fedorafresh" && -f "$HOME/.fedorafresh/fedorafresh.sh" ]]; then         
+        gum style \
+            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "ℹ️ FedoraFresh ya se encuentra instalado en '$HOME/.fedorafresh'"
+        return 0         
+    else
+        git clone https://github.com/rcv11x/FedoraFresh.git "$HOME/.fedorafresh"
+        gum style \
+            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "\n✅ Se ha instalado FedoraFresh en '$HOME/.fedorafresh'"
+    fi
 }
