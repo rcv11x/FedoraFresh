@@ -3,10 +3,12 @@
 # Creado por: rcv11x (Alejandro M) (2024)
 # Licencia: MIT
 
-source "scripts/utils.sh"
-source "scripts/install_dnf_packages.sh"
-source "scripts/install_flatpak_packages.sh"
-source "scripts/packages_list.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+source "$SCRIPT_DIR/scripts/utils.sh"
+source "$SCRIPT_DIR/scripts/install_dnf_packages.sh"
+source "$SCRIPT_DIR/scripts/install_flatpak_packages.sh"
+source "$SCRIPT_DIR/scripts/packages_list.sh"
 
 trap stop_script INT
 
@@ -167,7 +169,7 @@ function install_home_dir() {
         return 0         
     else
         git clone https://github.com/rcv11x/FedoraFresh.git "$HOME/.fedorafresh"
-        sudo ln -s "$HOME/.fedorafresh/fedorafresh.sh" /usr/local/bin/fedorafresh
+        sudo ln -sf "$HOME/.fedorafresh/fedorafresh.sh" /usr/local/bin/fedorafresh
         exec $SHELL
     fi
 }
