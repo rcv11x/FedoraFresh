@@ -486,6 +486,7 @@ function install_rcv11x_config() {
 
         # -- CONFIGURACION -- #
         custom_banner_text "Instalando plugins de ZSH para $USER y root..."
+        mkdir -p "$HOME/.config/kitty"
         mkdir -p "$HOME/.icons"
         sudo dnf install kitty zsh -y
         sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -501,15 +502,17 @@ function install_rcv11x_config() {
         sudo rm -rf /root/.zshrc
         sudo ln -sfv ~/.zshrc /root/.zshrc
         custom_banner_text "Copiando configuracion de Kitty y Nano..."; sleep 1
+
         cp -rv "$SCRIPT_DIR/config/kitty" "$HOME/.config"
         cp -rv "$SCRIPT_DIR/config/.nano" "$HOME"
         cp -rv "$SCRIPT_DIR/config/.nanorc" "$HOME"
         custom_banner_text "Instalando y copiando config de Starship..."; sleep 1
+
         wget https://starship.rs/install.sh -O "$SCRIPT_DIR/install.sh" && chmod +x "$SCRIPT_DIR/install.sh" && sh "$SCRIPT_DIR/install.sh" -y
-        cp -rv "$SCRIPT_DIR/config/starship.toml" "$HOME/.config"
-        sleep 2
+        cp -rv "$SCRIPT_DIR/config/starship.toml" "$HOME/.config"; sleep 1
+
         custom_banner_text "Aplicando temas de mouse, wallpaper y otras configuraciones..."; sleep 1
-        cp -rv "$SCRIPT_DIR/config/.icons/*" "$HOME/.icons/"
+        cp -rv "$SCRIPT_DIR/config/.icons/" "$HOME/.icons/"
         cp -rv "$SCRIPT_DIR/wallpapers/" "$pictures_dir"
         kwriteconfig6 --file "$HOME"/.config/kcminputrc --group Mouse --key cursorTheme "Bibata-Modern-Ice"
         plasma-apply-wallpaperimage "/home/$USER/Imágenes/wallpapers/4k/250345-final.png"
@@ -548,10 +551,21 @@ function show_help() {
   exit 0
 }
 
+
 function update_repo() {
-    echo "🔄 Buscando actualizaciones..."
-    git pull || cd "$HOME/.fedorafresh" && git pull
-    echo "✅ Repositorio actualizado." && cd
+    echo "🔄 Buscando actualizaciones de fedorafresh..."
+    if [ -d "$SCRIPT_DIR/.git" ]; then
+        cd "$SCRIPT_DIR" && git pull
+        echo "✅ Repositorio actualizado."
+        cd "$SCRIPT_DIR" || { echo "❌ Error: No se pudo acceder al directorio"; exit 1; }
+    elif [ -d "$HOME/.fedorafresh/.git" ]; then
+        cd "$HOME/.fedorafresh" && git pull
+        echo "✅ Repositorio actualizado."
+        cd - > /dev/null || { echo "❌ Error: No se pudo volver al directorio anterior"; exit 1; }
+    else
+        echo "❌ No se encontró el repositorio git,Por favor, instala fedorafresh con 'fedorafresh -i'"
+    fi
+
     exit 0
 }
 

@@ -55,8 +55,8 @@ function installation() {
 
         sudo mkdir -p $fonts_dir
         mkdir -p "$pictures_dir/wallpapers/"
-        mkdir -p "$HOME/.icons"
         mkdir -p "$HOME/.config/kitty"
+        mkdir -p "$HOME/.icons"
         mkdir -p "$SCRIPT_DIR/fonts/"
 
         gum style \
