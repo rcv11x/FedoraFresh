@@ -504,13 +504,13 @@ function install_rcv11x_config() {
         cp -rv "$SCRIPT_DIR/config/.nano" "$HOME"
         cp -rv "$SCRIPT_DIR/config/.nanorc" "$HOME"
         custom_banner_text "Instalando y copiando config de Starship..."; sleep 1
-        wget https://starship.rs/install.sh && chmod +x install.sh
+        wget https://starship.rs/install.sh -o "$SCRIPT_DIR" && chmod +x install.sh
         sh install.sh -y
         cp -rv "$SCRIPT_DIR/config/starship.toml" "$HOME/.config"
         sleep 2
         custom_banner_text "Aplicando temas de mouse, wallpaper y otras configuraciones..."; sleep 1
         cp -rv "$SCRIPT_DIR/config/.icons/*" "$HOME/.icons/"
-        cp -rv "$SCRIPT_DIR/wallpapers/" "$HOME/$pictures_dir"
+        cp -rv "$SCRIPT_DIR/wallpapers/" "$pictures_dir"
         kwriteconfig6 --file "$HOME"/.config/kcminputrc --group Mouse --key cursorTheme "Bibata-Modern-Ice"
         plasma-apply-wallpaperimage "/home/$USER/Imágenes/wallpapers/4k/250345-final.png"
         
@@ -530,7 +530,7 @@ function install_essential_packages(){
             "A continuacion se van a instalar paquetes esenciales"; sleep 2
 
     gum spin --spinner dot --title "Instalando paquetes..." -- \
-        sudo dnf install -y "${essential_packages[@]}" &> /dev/null
+        sudo dnf install -y "${essential_packages[@]}"
 
     echo -e "$(msg_ok) Paquetes: ${essential_packages[*]} instalados!"; sleep 1.5
 }
@@ -550,8 +550,8 @@ function show_help() {
 
 function update_repo() {
     echo "🔄 Buscando actualizaciones..."
-    git pull
-    echo "✅ Repositorio actualizado."
+    git pull || cd "$HOME/.fedorafresh" && git pull
+    echo "✅ Repositorio actualizado." && cd
     exit 0
 }
 
