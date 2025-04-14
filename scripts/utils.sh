@@ -43,7 +43,7 @@ function press_any_key() {
 }
 
 function custom_banner_text() {
-    gum style --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 "$1"
+    gum style --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 "$1" "$2" "$3"
 }
 
 
@@ -542,7 +542,7 @@ function show_help() {
   echo ""
   echo "Options:"
   echo "  -h, --help       Show this help"
-  echo "  -i, --install    Instalar el repo en el directorio HOME"
+  echo "  -i, --install    Instalar el repo en el directorio $HOME/.fedorafresh para usarlo como un programa"
   echo "  -u, --update     Buscar actualizaciones y actualizar el repositorio"
  
   exit 0
@@ -563,9 +563,8 @@ function install_home_dir() {
             "ℹ️ FedoraFresh ya se encuentra instalado en '$HOME/.fedorafresh'"
         return 0         
     else
-        git clone https://github.com/rcv11x/FedoraFresh.git "$HOME/.fedorafresh"
-        gum style \
-            --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
-            "\n✅ Se ha instalado FedoraFresh en '$HOME/.fedorafresh'"
+        git clone https://github.com/rcv11x/FedoraFresh.git "$HOME/.fedorafresh" && custom_banner_text "✅ Se ha instalado FedoraFresh en '$HOME/.fedorafresh', Asegurate de añadir el alias de tu .bashrc o .zshrc para poder usar la herramienta desde cualquier ruta" "Copia y pega esto en tu shell: alias fedorafresh='$HOME/.fedorafresh/fedorafresh.sh' " || echo -e "❌ Ha ocurrido un error el instalar el repo, comprueba tu conexion a internet\n"
     fi
+
+    press_any_key
 }

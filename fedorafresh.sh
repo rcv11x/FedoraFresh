@@ -3,10 +3,12 @@
 # Creado por: rcv11x (Alejandro M) (2024)
 # Licencia: MIT
 
-source "scripts/utils.sh"
-source "scripts/install_dnf_packages.sh"
-source "scripts/install_flatpak_packages.sh"
-source "scripts/packages_list.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+source "$SCRIPT_DIR/scripts/utils.sh"
+source "$SCRIPT_DIR/scripts/install_dnf_packages.sh"
+source "$SCRIPT_DIR/scripts/install_flatpak_packages.sh"
+source "$SCRIPT_DIR/scripts/packages_list.sh"
 
 trap stop_script INT
 
@@ -24,15 +26,15 @@ function show_banner() {
 
 function menu() {
 
-    echo -e "(1) ${cyan}Instalar FedoraFresh${default}"
-    echo -e "(2) ${cyan}Instalar/Desintalar paquetes Fedora${default}"
-    echo -e "(3) ${cyan}Instalar/Desinstalar paquetes Flatpak${default}"
-    echo -e "(4) ${cyan}Aplicar temas GRUB${default}"
-    echo -e "(5) ${cyan}Limpiar y Optimizar distro${default}"
-    echo -e "(6) ${cyan}Instalar drivers para mandos Xbox${default}"
-    echo -e "(7) ${cyan}Instalar config de rcv11x${default}"
-    echo -e "(i) ${cyan}Informacion del sistema${default}"
-    echo -e "(0) ${cyan}Exit${default}\n"
+    echo -e "[1] ${cyan}Instalar FedoraFresh${default}"
+    echo -e "[2] ${cyan}Instalar/Desintalar paquetes Fedora${default}"
+    echo -e "[3] ${cyan}Instalar/Desinstalar paquetes Flatpak${default}"
+    echo -e "[4] ${cyan}Aplicar temas GRUB${default}"
+    echo -e "[5] ${cyan}Limpiar y Optimizar distro${default}"
+    echo -e "[6] ${cyan}Instalar drivers para mandos Xbox${default}"
+    echo -e "[7] ${cyan}Instalar config de rcv11x${default}"
+    echo -e "[i] ${cyan}Informacion del sistema${default}"
+    echo -e "[0] ${cyan}Exit${default}\n"
 }
 
 function installation() {
