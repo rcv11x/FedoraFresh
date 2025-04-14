@@ -55,7 +55,7 @@ function speed_test() {
         clear
         gum spin --spinner dot --title "Ejecutando test de velocidad..." -- bash -c "$SCRIPT_DIR/scripts/speedtest-cli --secure --simple 2>/dev/null > $SCRIPT_DIR/speedtest_output.txt"
 
-        output=$(<speedtest_output.txt)
+        output=$(cat "$SCRIPT_DIR/speedtest_output.txt")
         download=$(echo "$output" | grep "Download:" | awk '{print $2}')
         upload=$(echo "$output" | grep "Upload:" | awk '{print $2}')
         unit=$(echo "$output" | grep "Download:" | awk '{print $3}')
