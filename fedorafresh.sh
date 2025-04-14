@@ -58,7 +58,7 @@ function installation() {
         mkdir -p "$HOME/.config/kitty"
         mkdir -p "$HOME/.icons"
         mkdir -p "$SCRIPT_DIR/fonts/"
-
+        clear
         gum style \
             --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
             "Establece un nombre de host para tu equipo Ej. (mipc, pc-juan...)" "⚠️ Ten cuidado con los espacios y caracteres raros"
