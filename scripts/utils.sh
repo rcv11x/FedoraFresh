@@ -557,6 +557,8 @@ function update_repo() {
 
 function install_home_dir() {
 
+    check_gum_installed
+
     if [[ -f "$HOME/.fedorafresh" && -f "$HOME/.fedorafresh/fedorafresh.sh" ]]; then         
         gum style \
             --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
