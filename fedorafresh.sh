@@ -3,7 +3,8 @@
 # Creado por: rcv11x (Alejandro M) (2024)
 # Licencia: MIT
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
 source "$SCRIPT_DIR/scripts/utils.sh"
 source "$SCRIPT_DIR/scripts/install_dnf_packages.sh"
@@ -20,7 +21,7 @@ function show_banner() {
     echo -e " |  _|  __/ (_| | (_) | | | (_| |  _|| | |  __/\__ \ | | | "
     echo -e " |_|  \___|\__,_|\___/|_|  \__,_|_|  |_|  \___||___/_| |_| \n"
     echo -e "Hola $(whoami)! | Fedora: ${fedora_variant} v${fedora_version}"
-    echo -e "Estas en: ${yellow}$current_dir${default}\n\n" 
+    echo -e "Estas en: ${yellow}$SCRIPT_DIR${default}\n\n" 
 
 }
 
@@ -56,7 +57,7 @@ function installation() {
         mkdir -p "${pictures_dir}/wallpapers/"
         mkdir -p "$HOME/.icons"
         mkdir -p "$HOME/.config/kitty"
-        mkdir -p "$current_dir/fonts/"
+        mkdir -p "$SCRIPT_DIR/fonts/"
 
         gum style \
             --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \

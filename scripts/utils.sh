@@ -18,7 +18,7 @@ purple="\e[0;35m"
 white="\e[0;37m"
 black="\e[0;30m"
 
-current_dir=$(pwd)
+SCRIPT_DIR=$(pwd)
 pictures_dir="$(xdg-user-dir PICTURES)"
 fonts_dir=/usr/local/share/fonts/custom
 fedora_version=$(cat /etc/os-release | grep -i "VERSION_ID" | awk -F'=' '{print $2}')
@@ -53,7 +53,7 @@ function speed_test() {
     if gum confirm "¿Quieres realizar un test de velocidad para evaluar tu conexión a internet?"; then
 
         clear
-        gum spin --spinner dot --title "Ejecutando test de velocidad..." -- bash -c './scripts/speedtest-cli --secure --simple 2>/dev/null > speedtest_output.txt'
+        gum spin --spinner dot --title "Ejecutando test de velocidad..." -- bash -c "$SCRIPT_DIR/scripts/speedtest-cli --secure --simple 2>/dev/null > $SCRIPT_DIR/speedtest_output.txt"
 
         output=$(<speedtest_output.txt)
         download=$(echo "$output" | grep "Download:" | awk '{print $2}')
@@ -107,7 +107,7 @@ EOF
 
 function check_deps() {
 
-    mkdir -p "$current_dir/fonts/"
+    mkdir -p "$SCRIPT_DIR/fonts/"
 
     gum style \
 	--foreground 212 --border-foreground 212 --border double \
@@ -285,21 +285,21 @@ function install_fonts() {
     sudo mkdir -p $fonts_dir
 
     gum spin --spinner dot --title "Descargando fuentes parcheadas..." -- bash -c "
-        curl -sSL -o $current_dir/fonts/Iosevka.zip     \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*Iosevka.zip\"' | cut -d'\"' -f4)\"
-        curl -sSL -o $current_dir/fonts/IosevkaTerm.zip \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*IosevkaTerm.zip\"' | cut -d'\"' -f4)\"
-        curl -sSL -o $current_dir/fonts/ZedMono.zip      \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*ZedMono.zip\"' | cut -d'\"' -f4)\"
-        curl -sSL -o $current_dir/fonts/Meslo.zip        \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*Meslo.zip\"' | cut -d'\"' -f4)\"
-        curl -sSL -o $current_dir/fonts/FiraCode.zip     \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*FiraCode.zip\"' | cut -d'\"' -f4)\"
+        curl -sSL -o $SCRIPT_DIR/fonts/Iosevka.zip     \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*Iosevka.zip\"' | cut -d'\"' -f4)\"
+        curl -sSL -o $SCRIPT_DIR/fonts/IosevkaTerm.zip \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*IosevkaTerm.zip\"' | cut -d'\"' -f4)\"
+        curl -sSL -o $SCRIPT_DIR/fonts/ZedMono.zip      \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*ZedMono.zip\"' | cut -d'\"' -f4)\"
+        curl -sSL -o $SCRIPT_DIR/fonts/Meslo.zip        \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*Meslo.zip\"' | cut -d'\"' -f4)\"
+        curl -sSL -o $SCRIPT_DIR/fonts/FiraCode.zip     \"\$(curl -s \"$iosevka_repo_url\" | grep -o '\"browser_download_url\": \"[^\"]*FiraCode.zip\"' | cut -d'\"' -f4)\"
     " && echo -e "$(msg_ok) Fuentes Descargadas"; sleep 2
 
     gum spin --spinner dot --title "Extrayendo fuentes en '$fonts_dir' ..." -- bash -c '
-    for font in "'"$current_dir"'/fonts/"*.zip; do
+    for font in "'"$SCRIPT_DIR"'/fonts/"*.zip; do
         sudo unzip -o "$font" -d "'"$fonts_dir"'" >/dev/null
     done
     ' && echo -e "$(msg_ok) Fuentes extraídas."; sleep 2
 
 
-    rm -rf "$current_dir/fonts"
+    rm -rf "$SCRIPT_DIR/fonts"
     sudo rm /usr/local/share/fonts/custom/*.md /usr/local/share/fonts/custom/*.txt
     sudo fc-cache &> /dev/null
 }
@@ -355,7 +355,7 @@ function apply_grub_themes() {
     case $action in
         "Instalar")
             echo "Instalando tema..."
-            sudo cp -r "themes/grub/$theme_dir" /boot/grub2/themes/
+            sudo cp -r "$SCRIPT_DIR/themes/grub/$theme_dir" /boot/grub2/themes/
             if grep -q '^GRUB_THEME=' /etc/default/grub; then
                 gum confirm "Ya hay un tema configurado en GRUB: ¿Deseas reemplazarlo?" && \
                 sudo sed -i "s|^GRUB_THEME=.*|GRUB_THEME=\"/boot/grub2/themes/$theme_name/theme.txt\"|" /etc/default/grub || {
@@ -476,7 +476,7 @@ function install_xbox_controllers() {
         sudo git clone https://github.com/atar-axis/xpadneo.git /opt/xpadneo
         cd /opt/xpadneo
         sudo ./install.sh
-        cd "$current_dir" && menu
+        cd "$SCRIPT_DIR" && menu
     fi
 
     sleep 2 && main
@@ -496,21 +496,21 @@ function install_rcv11x_config() {
         sudo chsh -s "$(which zsh)" "$USER"
         sudo chsh -s "$(which zsh)" root
         rm -rf "$HOME/.zshrc"
-        cp -rv config/.zshrc "$HOME"
+        cp -rv "$SCRIPT_DIR/config/.zshrc" "$HOME"
         sudo rm -rf /root/.zshrc
         sudo ln -sfv ~/.zshrc /root/.zshrc
         custom_banner_text "Copiando configuracion de Kitty y Nano..."; sleep 1
-        cp -rv config/kitty/* "$HOME/.config/kitty"
-        cp -rv config/.nano "$HOME"
-        cp -rv config/.nanorc "$HOME"
+        cp -rv "$SCRIPT_DIR/config/kitty/*" "$HOME/.config/kitty"
+        cp -rv "$SCRIPT_DIR/config/.nano" "$HOME"
+        cp -rv "$SCRIPT_DIR/config/.nanorc" "$HOME"
         custom_banner_text "Instalando y copiando config de Starship..."; sleep 1
         wget https://starship.rs/install.sh && chmod +x install.sh
         sh install.sh -y
-        cp -rv config/starship.toml "$HOME/.config"
+        cp -rv "$SCRIPT_DIR/config/starship.toml" "$HOME/.config"
         sleep 2
         custom_banner_text "Aplicando temas de mouse, wallpaper y otras configuraciones..."; sleep 1
-        cp -rv config/.icons/* "$HOME/.icons/"
-        cp -rv wallpapers/ "$HOME/Imágenes/"
+        cp -rv "$SCRIPT_DIR/config/.icons/*" "$HOME/.icons/"
+        cp -rv "$SCRIPT_DIR/wallpapers/" "$HOME/$pictures_dir"
         kwriteconfig6 --file "$HOME"/.config/kcminputrc --group Mouse --key cursorTheme "Bibata-Modern-Ice"
         plasma-apply-wallpaperimage "/home/$USER/Imágenes/wallpapers/4k/250345-final.png"
         
