@@ -486,6 +486,7 @@ function install_rcv11x_config() {
 
         # -- CONFIGURACION -- #
         custom_banner_text "Instalando plugins de ZSH para $USER y root..."
+        mkdir -p "$HOME/.icons"
         sudo dnf install kitty zsh -y
         sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
         sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -500,12 +501,12 @@ function install_rcv11x_config() {
         sudo rm -rf /root/.zshrc
         sudo ln -sfv ~/.zshrc /root/.zshrc
         custom_banner_text "Copiando configuracion de Kitty y Nano..."; sleep 1
-        cp -rv "$SCRIPT_DIR/config/kitty/*" "$HOME/.config/kitty"
+        cp -rv "$SCRIPT_DIR/config/kitty" "$HOME/.config"
         cp -rv "$SCRIPT_DIR/config/.nano" "$HOME"
         cp -rv "$SCRIPT_DIR/config/.nanorc" "$HOME"
         custom_banner_text "Instalando y copiando config de Starship..."; sleep 1
-        wget https://starship.rs/install.sh -o "$SCRIPT_DIR" && chmod +x install.sh
-        sh install.sh -y
+        wget https://starship.rs/install.sh -O "$SCRIPT_DIR" && chmod +x install.sh
+        sh "$SCRIPT_DIR/install.sh -y"
         cp -rv "$SCRIPT_DIR/config/starship.toml" "$HOME/.config"
         sleep 2
         custom_banner_text "Aplicando temas de mouse, wallpaper y otras configuraciones..."; sleep 1
