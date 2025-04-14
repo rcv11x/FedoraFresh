@@ -505,8 +505,7 @@ function install_rcv11x_config() {
         cp -rv "$SCRIPT_DIR/config/.nano" "$HOME"
         cp -rv "$SCRIPT_DIR/config/.nanorc" "$HOME"
         custom_banner_text "Instalando y copiando config de Starship..."; sleep 1
-        wget https://starship.rs/install.sh -O "$SCRIPT_DIR" && chmod +x install.sh
-        sh "$SCRIPT_DIR/install.sh -y"
+        wget https://starship.rs/install.sh -O "$SCRIPT_DIR/install.sh" && chmod +x "$SCRIPT_DIR/install.sh" && sh "$SCRIPT_DIR/install.sh" -y
         cp -rv "$SCRIPT_DIR/config/starship.toml" "$HOME/.config"
         sleep 2
         custom_banner_text "Aplicando temas de mouse, wallpaper y otras configuraciones..."; sleep 1
