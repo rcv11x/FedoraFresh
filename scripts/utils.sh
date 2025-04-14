@@ -18,7 +18,7 @@ purple="\e[0;35m"
 white="\e[0;37m"
 black="\e[0;30m"
 
-SCRIPT_DIR=$(pwd)
+# SCRIPT_DIR=$(pwd)
 pictures_dir="$(xdg-user-dir PICTURES)"
 fonts_dir=/usr/local/share/fonts/custom
 fedora_version=$(cat /etc/os-release | grep -i "VERSION_ID" | awk -F'=' '{print $2}')
@@ -43,7 +43,7 @@ function press_any_key() {
 }
 
 function custom_banner_text() {
-    gum style --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 "$1" "$2" "$3"
+    gum style --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 100 "$1" "$2" "$3"
 }
 
 
@@ -90,7 +90,7 @@ function check_gum_installed() {
     if [[ -f /etc/yum.repos.d/charm.repo ]]; then          
         return 0         
     else
-        echo -e "\n${yellow}⚠ 'gum' no ha sido encontrado y es necesario para la ejecucion del script, a continuacion se va a instalar\n\n${default}"
+        echo -e "\n${yellow}⚠ 'gum' no ha sido encontrado y es necesario para la ejecucion del script, a continuacion se va a instalar\n${default}"
         press_any_key
         sudo tee /etc/yum.repos.d/charm.repo > /dev/null <<-EOF
 [charm]
@@ -549,10 +549,10 @@ function show_help() {
 }
 
 function update_repo() {
-  echo "🔄 Buscando actualizaciones..."
-  git pull
-  echo "✅ Repositorio actualizado."
-  exit 0
+    echo "🔄 Buscando actualizaciones..."
+    git pull
+    echo "✅ Repositorio actualizado."
+    exit 0
 }
 
 function install_home_dir() {

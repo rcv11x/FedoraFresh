@@ -20,7 +20,7 @@ function show_banner() {
     echo -e " | |_ / _ \/ _' |/ _ \| '__/ _' | |_ | '__/ _ \/ __| '_ \  "
     echo -e " |  _|  __/ (_| | (_) | | | (_| |  _|| | |  __/\__ \ | | | "
     echo -e " |_|  \___|\__,_|\___/|_|  \__,_|_|  |_|  \___||___/_| |_| \n"
-    echo -e "Hola $(whoami)! | Fedora: ${fedora_variant} v${fedora_version}"
+    echo -e "Hola $(whoami)! 👋🏼 | Fedora: ${fedora_variant} v${fedora_version}"
     echo -e "Estas en: ${yellow}$SCRIPT_DIR${default}\n\n" 
 
 }
@@ -54,7 +54,7 @@ function installation() {
 
 
         sudo mkdir -p $fonts_dir
-        mkdir -p "${pictures_dir}/wallpapers/"
+        mkdir -p "$pictures_dir/wallpapers/"
         mkdir -p "$HOME/.icons"
         mkdir -p "$HOME/.config/kitty"
         mkdir -p "$SCRIPT_DIR/fonts/"
