@@ -275,10 +275,16 @@ function view_system_info() {
 
 function update_firmware() {
     echo -e "${purple}[!] Buscando actualizaciones de firmware disponibles...${default}"; sleep 1
+
+    if systemd-detect-virt --quiet; then
+        echo -e "${yellow}[!] Se ha detectado un sistema virtualizado. Saltando actualización de firmware...${default}"l; sleep 1
+        return 0
+    fi
+
     sudo fwupdmgr refresh --force
     sudo fwupdmgr get-devices
     sudo fwupdmgr get-updates
-    sudo fwupdmgr update
+    sudo fwupdmgr update -y
 }
 
 function install_fonts() {
