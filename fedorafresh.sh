@@ -21,7 +21,7 @@ function show_banner() {
     echo -e " |  _|  __/ (_| | (_) | | | (_| |  _|| | |  __/\__ \ | | | "
     echo -e " |_|  \___|\__,_|\___/|_|  \__,_|_|  |_|  \___||___/_| |_| \n"
     echo -e "Hola $(whoami)! 👋🏼 | Fedora: ${fedora_variant} v${fedora_version}"
-    echo -e "Estas en: ${yellow}$SCRIPT_DIR${default}\n\n" 
+    echo -e "Estas en: 📁 ${yellow}$SCRIPT_DIR${default}\n\n" 
 
 }
 

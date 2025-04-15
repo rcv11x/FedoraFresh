@@ -42,8 +42,23 @@ function press_any_key() {
     read -n 1 -s -r -p ""
 }
 
-function custom_banner_text() {
+function banner_text() {
     gum style --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 100 "$1" "$2" "$3"
+}
+
+# Blue
+function info_banner_text() {
+    gum style --foreground "#0000ff" --border double --margin "$1" --padding "$2" --align center --width 100 "$3" "$4"
+}
+
+# Yellow
+function warn_banner_text() {
+    gum style --foreground "#ffff00" --border double --margin "$1" --padding "$2" --align center --width 100 "$3" "$4"
+}
+
+# Red
+function error_banner_text() {
+    gum style --foreground "#ff0000" --border double --margin "$1" --padding "$2" --align center --width 100 "$3" "$4"
 }
 
 
@@ -90,7 +105,7 @@ function check_gum_installed() {
     if [[ -f /etc/yum.repos.d/charm.repo ]]; then          
         return 0         
     else
-        echo -e "\n${yellow}⚠ 'gum' no ha sido encontrado y es necesario para la ejecucion del script, a continuacion se va a instalar\n${default}"
+        warn_banner_text 0 0 "⚠ El paquete 'gum' no ha sido encontrado y es necesario para la ejecucion del script, a continuacion se va a instalar"
         press_any_key
         sudo tee /etc/yum.repos.d/charm.repo > /dev/null <<-EOF
 [charm]
@@ -217,44 +232,59 @@ function install_multimedia() {
     sudo rm -f /usr/lib64/firefox/browser/defaults/preferences/firefox-redhat-default-prefs.js
 }
 
-function install_gpu_drivers() {
-    gpu_info=$(lspci | grep -i 'vga\|3d\|2d' | awk -F': ' '{print $2}' | grep -v "3d" | sed 's/ (rev .*//')
+function detect_gpu() {
 
-    echo "GPUs detectadas:";
-    while read -r gpu_name; do
-        echo "- $gpu_name"; sleep 1
-    done <<< "$gpu_info"
+    # shellcheck disable=SC2317
 
-    while read -r gpu_name; do
-        case "$gpu_name" in
-            *nvidia*)
-                echo -e "\n${purple}[!] Se ha detectado una GPU NVIDIA en el sistema. Instalando drivers propietarios...${default}\n"
-                sleep 2
-                sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda libva-nvidia-driver || {
-                    echo -e "${red}[!] Error al instalar los drivers de NVIDIA.${default}\n"
-                    return 1
-                }
-                ;;
-            *amd*)
-                echo -e "\n${purple}[!] Se ha detectado una GPU AMD en el sistema.${default}\n"
-                echo -e "${purple}[!] - Omitiendo... ya que los drivers están incorporados en el kernel.${default}\n"
-                sleep 2
-                ;;
-            *intel*)
-                echo -e "\n${purple}[!] Se ha detectado una GPU Intel en el sistema.${default}\n"
-                echo -e "${purple}[!] - Omitiendo... ya que los drivers están incorporados en el kernel.${default}\n"
-                sleep 2
-                echo -e "\n${purple}[!] Instalando algunas herramientas útiles para Intel...${default}\n"
-                sudo dnf install -y intel-gpu-tools || {
-                    echo -e "${red}[!] Error al instalar las herramientas para Intel.${default}\n"
-                    return 1
-                }
-                ;;
-            *)
-                echo -e "${yellow}[!] No se detectó una GPU compatible.${default}\n"
-                ;;
-        esac
-    done <<< "$gpu_info"
+    function install_amdgpu_top() {
+        mkdir -p "$SCRIPT_DIR/tmp"
+        echo -e "[!] Descargando e instalando amdgpu_top..."
+        wget -nv "$amd_gputop_repo" -O "$SCRIPT_DIR/tmp/amdgpu_top.rpm"
+        sudo dnf install -y "$SCRIPT_DIR/tmp/amdgpu_top.rpm"
+        rm -rf "$SCRIPT_DIR/tmp"
+        echo "Hola"
+    }
+
+    amd_gputop_repo=$(curl -s https://api.github.com/repos/Umio-Yasuno/amdgpu_top/releases \
+  | jq -r '.[] | .assets[] | select(.name | endswith(".x86_64.rpm")) | .browser_download_url' \
+  | head -n1)
+    local intel_pkg_utils=("intel-gpu-tools" "nvtop")
+    local amd_pkg_utils=("nvtop" "zsh" "lsd" "bat")
+
+    banner_text "🔎 Detectando GPU instalada..."; sleep 1
+
+    gpu_name=$(glxinfo -B | grep "Device:" | cut -d':' -f2- | sed 's/ (.*)//' | xargs)
+    echo "- GPU detectada: $gpu_name"
+
+    gpu_name_lower=$(echo "$gpu_name" | tr '[:upper:]' '[:lower:]')
+
+    if [[ "$gpu_name_lower" == *intel* ]]; then
+        echo -e "\n[!] Los drivers ya estan incorporados en el kernel y no es necesario instalar nada\n"
+
+        echo -e "Paquetes recomendados: ${intel_pkg_utils[*]}\n"
+        if gum confirm "¿Quieres instalar los paquetes recomendados para tu GPU Intel?"; then
+            gum spin --spinner dot --title "▶️ Instalando paquetes..." -- \
+            sudo dnf install "${intel_pkg_utils[*]}"
+        else
+            return 0
+        fi
+
+    elif [[ "$gpu_name_lower" == *amd* ]]; then
+        echo -e "\n[!] Los drivers ya estan incorporados en el kernel y no es necesario instalar nada"
+
+        echo -e "Paquetes recomendados: ${amd_pkg_utils[*]} y amdgpu_top\n"
+        if gum confirm "¿Quieres instalar los paquetes recomendados para tu GPU AMD?"; then
+            gum spin --spinner dot --title "▶️ Instalando paquetes..." -- \
+            sudo dnf install "${amd_pkg_utils[*]}"
+            echo -e "$(msg_ok) Paquetes instalados"
+            gum spin --spinner dot --title "▶️ Instalando amdgpu_top..." -- install_amdgpu_top
+            echo -e "$(msg_ok)"; sleep 1
+        else
+            return 0
+        fi
+    else
+        echo -e "[!] No se ha encontrado una GPU compatible"
+    fi
 }
 
 function view_system_info() {
@@ -262,7 +292,7 @@ function view_system_info() {
     total_ram=$(awk '/MemTotal/ { printf "%.2f GB\n", $2 / 1024 / 1024 }' /proc/meminfo)
     gpu_info=$(lspci | grep -i 'vga\|3d\|2d' | awk -F': ' '{print $2}' | grep -v "3d" | sed 's/ (rev .*//')
     kernel_version=$(uname -r)
-    custom_banner_text "${yellow} --> Informacion del sistema <-- ${default}"
+    banner_text "${yellow} --> Informacion del sistema <-- ${default}"
     echo -e "\n${white}- CPU: ${cyan}$cpu_name ${default}"
     echo -e "${white}- RAM: ${cyan}$total_ram ${default}"
     echo -e "${white}- GPU: ${cyan}$gpu_info ${default}"
@@ -394,7 +424,7 @@ function apply_grub_themes() {
 function optimization() {
 
     clear
-    custom_banner_text "${red} OPTIMIZACION Y LIMPIEZA DE LA DISTRO ${default}"
+    banner_text "${red} OPTIMIZACION Y LIMPIEZA DE LA DISTRO ${default}"
     echo -e "\n- Se le hará alguna pregunta y tendrá que responder con y/N ¿Continuar?\n"
     read -r -p "${prompt}" opt
     opt=${opt:-N}
@@ -491,7 +521,7 @@ function install_xbox_controllers() {
 function install_rcv11x_config() {
 
         # -- CONFIGURACION -- #
-        custom_banner_text "Instalando plugins de ZSH para $USER y root..."
+        banner_text "Instalando plugins de ZSH para $USER y root..."
         mkdir -p "$HOME/.config/kitty"
         mkdir -p "$HOME/.icons"
         sudo dnf install kitty zsh -y
@@ -507,17 +537,17 @@ function install_rcv11x_config() {
         cp -rv "$SCRIPT_DIR/config/.zshrc" "$HOME"
         sudo rm -rf /root/.zshrc
         sudo ln -sfv ~/.zshrc /root/.zshrc
-        custom_banner_text "Copiando configuracion de Kitty y Nano..."; sleep 1
+        banner_text "Copiando configuracion de Kitty y Nano..."; sleep 1
 
         cp -rv "$SCRIPT_DIR/config/kitty" "$HOME/.config"
         cp -rv "$SCRIPT_DIR/config/.nano" "$HOME"
         cp -rv "$SCRIPT_DIR/config/.nanorc" "$HOME"
-        custom_banner_text "Instalando y copiando config de Starship..."; sleep 1
+        banner_text "Instalando y copiando config de Starship..."; sleep 1
 
         wget https://starship.rs/install.sh -O "$SCRIPT_DIR/install.sh" && chmod +x "$SCRIPT_DIR/install.sh" && sh "$SCRIPT_DIR/install.sh" -y
         cp -rv "$SCRIPT_DIR/config/starship.toml" "$HOME/.config"; sleep 1
 
-        custom_banner_text "Aplicando temas de mouse, wallpaper y otras configuraciones..."; sleep 1
+        banner_text "Aplicando temas de mouse, wallpaper y otras configuraciones..."; sleep 1
         cp -rv "$SCRIPT_DIR/config/.icons/" "$HOME/.icons/"
         cp -rv "$SCRIPT_DIR/wallpapers/" "$pictures_dir"
         kwriteconfig6 --file "$HOME"/.config/kcminputrc --group Mouse --key cursorTheme "Bibata-Modern-Ice"
@@ -585,7 +615,7 @@ function install_home_dir() {
             "ℹ️ FedoraFresh ya se encuentra instalado en '$HOME/.fedorafresh'"
         return 0         
     else
-        git clone https://github.com/rcv11x/FedoraFresh.git "$HOME/.fedorafresh" && custom_banner_text "✅ Se ha instalado FedoraFresh en '$HOME/.fedorafresh', Asegurate de añadir el alias de tu .bashrc o .zshrc para poder usar la herramienta desde cualquier ruta" "Copia y pega esto en tu shell: alias fedorafresh='$HOME/.fedorafresh/fedorafresh.sh' " || echo -e "❌ Ha ocurrido un error el instalar el repo, comprueba tu conexion a internet\n"
+        git clone https://github.com/rcv11x/FedoraFresh.git "$HOME/.fedorafresh" && banner_text "✅ Se ha instalado FedoraFresh en '$HOME/.fedorafresh', Asegurate de añadir el alias de tu .bashrc o .zshrc para poder usar la herramienta desde cualquier ruta" "Copia y pega esto en tu shell: alias fedorafresh='$HOME/.fedorafresh/fedorafresh.sh' " || echo -e "❌ Ha ocurrido un error el instalar el repo, comprueba tu conexion a internet\n"
     fi
 
     press_any_key
