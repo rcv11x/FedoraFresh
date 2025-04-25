@@ -538,7 +538,7 @@ function install_xbox_controllers() {
 
 function install_nvidia_drivers() {
 
-    check_rpm_fusion
+    check_rpm_fusion; clear
     nvidia_gpu_name=$(glxinfo -B | grep "Device:" | cut -d':' -f2- | sed 's/ (.*)//' | xargs)
     nvidia_gpu_name_lower=$(echo "$gpu_name" | tr '[:upper:]' '[:lower:]')
     
