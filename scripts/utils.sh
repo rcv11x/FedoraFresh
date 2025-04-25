@@ -37,6 +37,10 @@ function msg_ok() {
     echo -e "\n${green}✓ OK${default}"
 }
 
+function msg_fail() {
+    echo -e "\n${red}✗ FAIL${default}"
+}
+
 function press_any_key() {
     echo -e "\nPresiona una tecla para continuar"
     read -n 1 -s -r -p ""
@@ -48,7 +52,7 @@ function banner_text() {
 
 # Blue
 function info_banner_text() {
-    gum style --foreground "#0000ff" --border double --margin "$1" --padding "$2" --align center --width 100 "$3" "$4"
+    gum style --foreground "#00dcff" --border double --margin "0 0" --padding "0 0" --align center --width 100 "$1" "$2"
 }
 
 # Yellow
@@ -65,7 +69,7 @@ function error_banner_text() {
 function speed_test() {
 
     echo -e "\n"
-    if gum confirm "¿Quieres realizar un test de velocidad para evaluar tu conexión a internet?"; then
+    if gum confirm "🌐 ¿Quieres realizar un test de velocidad para evaluar tu conexión a internet?"; then
 
         clear
         gum spin --spinner dot --title "Ejecutando test de velocidad..." -- bash -c "$SCRIPT_DIR/scripts/speedtest-cli --secure --simple 2>/dev/null > $SCRIPT_DIR/speedtest_output.txt"
@@ -485,37 +489,94 @@ function install_xbox_controllers() {
 
     gum style \
             --foreground "#32CD32" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
-            "A continuacion se van instalar los controladores para que funcionen correctamente los mandos inalambricos de xbox entre otros como (S, Elites Series 2, 8BitDo...)"; sleep 2
-    
-    local paquetes=("dkms" "make" "bluez" "bluez-tools" "kernel-devel-`uname -r`" "kernel-headers")
+            "🎮 A continuacion se van instalar los controladores para que funcionen correctamente los mandos inalambricos de xbox entre otros como (S, Elites Series 2, 8BitDo...)"; sleep 1
 
-    for paquete in "${paquetes[@]}"; do
-        if ! dnf list --installed "$paquete" &>/dev/null; then
-            echo -e "${red}✗ ${default} No se ha encontrado el paquete ${paquete}. Instalando..."
-            sudo dnf install -y "$paquete" &> /dev/null
-            echo -e "${green}✓ ${default}Paquete ${paquete} instalado!"
-        else
-            echo -e "${green}✓ ${default}Paquete ${paquete} ya está instalado."
-        fi
-    done
-
-    if dkms status | grep -q "xpadneo" && [[ -f "/opt/xpadneo/install.sh" ]]; then
-        if gum confirm "✓ xpadneo ya está instalado y el repositorio se encuentra en /opt/xpadneo. ¿Quieres buscar nuevas actualizaciones?\n"; then
-            git config --global --ad safe.directory /opt/xpadneo
-            cd /opt/xpadneo
-            sudo git pull && sudo ./update.sh
-        else
-            echo -e "\nVolviendo al menu principal..."; sleep 2
-        fi
+    if ! gum confirm "¿Quieres proceder con la instalacion?"; then
+        echo -e "\n ${red}✗ ${default}Cancelado, no se van a instalar los controladores xpadneo. Volviendo al menu principal..."; sleep 2
+        clear
     else
-        echo "✗ xpadneo no está correctamente instalado o falta el repositorio. Procediendo con la instalación..."
-        sudo git clone https://github.com/atar-axis/xpadneo.git /opt/xpadneo
-        cd /opt/xpadneo
-        sudo ./install.sh
-        cd "$SCRIPT_DIR" && menu
-    fi
 
-    sleep 2 && main
+        echo -e "ℹ️ Empezando instalacion...\n"; sleep 1.5
+
+        local paquetes=("dkms" "make" "bluez" "bluez-tools" "kernel-devel-`uname -r`" "kernel-headers")
+
+        for paquete in "${paquetes[@]}"; do
+            if ! dnf list --installed "$paquete" &>/dev/null; then
+                echo -e "${red}✗ ${default} No se ha encontrado el paquete ${paquete}. Instalando..."
+                sudo dnf install -y "$paquete" &> /dev/null
+                echo -e "${green}✓ ${default}Paquete ${paquete} instalado!"
+            else
+                echo -e "${green}✓ ${default}Paquete ${paquete} ya se encuentra instalado"
+            fi
+        done
+
+        if dkms status | grep -q "xpadneo" && [[ -f "/opt/xpadneo/install.sh" ]]; then
+            echo -e "${green}ℹ️ ${default}xpadneo ya se encuentra instalado en /opt/xpadneo\n"
+            if gum confirm "¿Quieres buscar nuevas actualizaciones en el repositorio?"; then
+                git config --global --ad safe.directory /opt/xpadneo
+                cd /opt/xpadneo
+                sudo git pull && sudo ./update.sh
+                info_banner_text "xpadneo acaba de ser actualizado"
+                echo -e "\nℹ️ Volviendo al menu principal..."; sleep 2
+            else
+                echo -e "\nℹ️ Volviendo al menu principal..."; sleep 2
+            fi
+        else
+            echo -e "\nℹ️ ${red}✗ ${default}xpadneo no está correctamente instalado o falta el repositorio. Procediendo con la instalación...\n"; sleep 1
+            sudo git clone https://github.com/atar-axis/xpadneo.git /opt/xpadneo
+            cd /opt/xpadneo
+            sudo ./install.sh
+            info_banner_text "xpadneo acaba de ser instalado en /opt/xpadneo"; sleep 2
+            clear
+            cd "$SCRIPT_DIR" && menu
+        fi
+
+        sleep 2 && main
+    fi
+}
+
+
+function install_nvidia_drivers() {
+
+    nvidia_gpu_name=$(glxinfo -B | grep "Device:" | cut -d':' -f2- | sed 's/ (.*)//' | xargs)
+    nvidia_gpu_name_lower=$(echo "$gpu_name" | tr '[:upper:]' '[:lower:]')
+    
+    local nvidia_pkgs=("btop" "htop")
+
+    gum style \
+            --foreground "#32CD32" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
+            "⚠️ Importante" "Sigue esto solo si tienes una GPU NVIDIA. No sigas esto si tienes una GPU que ha dejado de ser compatible con las versiones de controladores más recientes, es decir, cualquier cosa anterior a las series nvidia GT / GTX 600, 700, 800, 900, 1000, 1600 y RTX 2000, 3000, 4000, 5000. Fedora viene preinstalado con controladores NOUVEAU que pueden o no funcionar mejor en las GPU más antiguas restantes. Esta guia pueden seguirla los usuarios de PC de escritorio y portátiles."; sleep 1
+
+    echo -e "- GPU detectada: ${green}$nvidia_gpu_name${default}\n"
+
+    if ! gum confirm "¿Quieres proceder con la instalacion?"; then
+        echo -e "\n ${red}✗ ${default}Cancelado, no se van a instalar los controladores de ${green}nvidia${default}. Volviendo al menu principal..."; sleep 3
+        clear
+    else
+        if rpm -q "${nvidia_pkgs[@]}" &> /dev/null; then
+            if gum confirm "Parece que ya tienes los drivers de nvidia instalados ¿Es correcto?"; then
+                echo -e "\n ${red}✗ ${default}Omitiendo... no se va a instalar nada. Volviendo al menu principal..."; sleep 2
+                clear
+                return 0
+            fi
+        fi
+
+        info_banner_text "Instalando los controladores de nvidia"
+
+        gum spin --spinner dot --title "Instalando paquetes de nvidia..." -- \
+        sudo dnf install -y "${nvidia_pkgs[@]}" \
+        || { msg_fail; echo "Error al instalar los drivers NVIDIA"; return 1; }
+
+        gum spin --spinner line --title "Compilando y cargando módulo del kernel..." -- bash -c '
+        until lsmod | grep -q "^nvidia"; do
+            sleep 3
+        done
+    '
+
+        whiptail --title "Instalación exitosa" --msgbox "Se han instalado correctamente los drivers propietarios para tu NVIDIA ${nvidia_gpu_name}.\n\n✔️ El módulo del kernel ya está cargado\n\nPara comprobarlo manualmente, ejecuta: 'modinfo -F version nvidia' en una nueva terminal\n\n¡Disfruta de tu sistema! - Ya puedes reiniciar." 14 80
+
+        return 0
+    fi
 }
 
 function install_rcv11x_config() {

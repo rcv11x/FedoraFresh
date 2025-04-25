@@ -27,13 +27,14 @@ function show_banner() {
 
 function menu() {
 
-    echo -e "[1] ${cyan}Instalar FedoraFresh${default}"
+    echo -e "[1] ${cyan}Instalar FedoraFresh *${default}"
     echo -e "[2] ${cyan}Instalar/Desintalar paquetes Fedora${default}"
     echo -e "[3] ${cyan}Instalar/Desinstalar paquetes Flatpak${default}"
-    echo -e "[4] ${cyan}Aplicar temas GRUB${default}"
-    echo -e "[5] ${cyan}Limpiar y Optimizar distro${default}"
-    echo -e "[6] ${cyan}Instalar drivers para mandos Xbox${default}"
-    echo -e "[7] ${cyan}Instalar config de rcv11x${default}"
+    echo -e "[4] ${cyan}Instalar controladores de nvidia${default}"
+    echo -e "[5] ${cyan}Aplicar temas para GRUB${default}"
+    echo -e "[6] ${cyan}Limpiar y Optimizar distro${default}"
+    echo -e "[7] ${cyan}Instalar/Actualizar drivers para mandos Xbox, 8BitDo...${default}"
+    echo -e "[8] ${cyan}Instalar config de rcv11x${default}"
     echo -e "[i] ${cyan}Informacion del sistema${default}"
     echo -e "[0] ${cyan}Exit${default}\n"
 }
@@ -61,8 +62,8 @@ function installation() {
         clear
         gum style \
             --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
-            "Establece un nombre de host para tu equipo Ej. (mipc, pc-juan...)" "⚠️ Ten cuidado con los espacios y caracteres raros"
-        hostname_name=$(gum input --placeholder="Nombre de tu equipo... " --cursor.mode="blink")
+            "🖥️ Establece un nombre de host para tu equipo Ej. (mipc, pc-juan...)" "⚠️ No escribas espacios y caracteres raros"
+        hostname_name=$(gum input --placeholder="Nombre para tu equipo... " --cursor.mode="blink")
         sudo hostnamectl set-hostname "$hostname_name"
 
         dnf_hacks
@@ -86,7 +87,7 @@ function installation() {
 function main(){
     clear
     if [[ $(id -u) = 0 || $(whoami) = "root" ]]; then
-        echo -e "\n${red}[!] Ejecuta el script sin permisos de sudo\n${default}"
+        echo -e "\n${red}⚠️ Ejecuta el script sin permisos de sudo\n${default}"
         exit 1
     else
         while true; do
@@ -108,20 +109,23 @@ function main(){
                     clear
                     install_flatpak_packages
                     ;;
-
                 4)
                     clear
-                    apply_grub_themes
+                    install_nvidia_drivers
                     ;;
                 5)
                     clear
-                    optimization
+                    apply_grub_themes
                     ;;
                 6)
                     clear
-                    install_xbox_controllers
+                    optimization
                     ;;
                 7)
+                    clear
+                    install_xbox_controllers
+                    ;;
+                8)
                     clear
                     install_rcv11x_config
                     ;;
