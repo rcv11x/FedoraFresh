@@ -542,7 +542,7 @@ function install_nvidia_drivers() {
     nvidia_gpu_name=$(glxinfo -B | grep "Device:" | cut -d':' -f2- | sed 's/ (.*)//' | xargs)
     nvidia_gpu_name_lower=$(echo "$gpu_name" | tr '[:upper:]' '[:lower:]')
     
-    local nvidia_pkgs=("btop" "htop")
+    local nvidia_pkgs=("akmod-nvidia" "xorg-x11-drv-nvidia-cuda")
 
     gum style \
             --foreground "#32CD32" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
