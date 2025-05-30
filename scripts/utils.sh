@@ -106,8 +106,8 @@ function speed_test() {
 
 function check_gum_installed() {
 
-    if [[ -f /etc/yum.repos.d/charm.repo ]]; then          
-        return 0         
+    if [[ -f /etc/yum.repos.d/charm.repo ]]; then
+        return 0
     else
         warn_banner_text 0 0 "⚠ El paquete 'gum' no ha sido encontrado y es necesario para la ejecucion del script, a continuacion se va a instalar"
         press_any_key
@@ -177,7 +177,7 @@ function check_rpm_fusion() {
             "Añadiendo el repositorio de RPM Fusion..."
         sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-"$(rpm -E %fedora)".noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"$(rpm -E %fedora)".noarch.rpm > /dev/null 2>&1
         sudo dnf group upgrade -y core
-        sudo dnf4 group update -y core
+        sudo dnf4 group install -y core
         echo -e "$(msg_ok) Repositorio RPM instalado!\n"; sleep 1.5
         sleep 1.5
     fi
@@ -205,7 +205,7 @@ function check_cpu_type() {
         gum style \
             --foreground "#ff0000" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
             "[Error] CPU no reconocido"; sleep 1.5
-        
+
     fi
 }
 
@@ -215,7 +215,7 @@ function install_multimedia() {
             --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
             "Instalando codecs multimedia completos para un buen funcionamiento y soporte..."; sleep 2
     check_rpm_fusion
-    sudo dnf4 group upgrade -y multimedia
+    sudo dnf4 group install -y multimedia
     sudo dnf swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
     # sudo dnf group install -y multimedia
     sudo dnf update -y @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
@@ -423,7 +423,7 @@ function apply_grub_themes() {
     esac
 }
 
-    
+
 
 function optimization() {
 
@@ -436,7 +436,7 @@ function optimization() {
         clear
         echo -e "${red}[!] A continuación se van a buscar paquetes huérfanos que ya no son necesarios en el sistema. Asegúrate de que los quieres borrar y presiona y/N más abajo para continuar\n${default}"
         sleep 3
-        
+
         packages_to_remove=$(sudo dnf autoremove --assumeno | tail -n +3)
 
         if [[ -z "$packages_to_remove" ]]; then
@@ -444,10 +444,10 @@ function optimization() {
             press_any_key
         else
             echo -e "\n${yellow}[!] Se eliminarán los siguientes paquetes:${default}\n$packages_to_remove\n${default}"
-            
+
             read -r -p "¿Deseas continuar con la eliminación? (y/N): " confirm
             confirm=${confirm:-N}
-            
+
             if [[ "$confirm" =~ ^[Yy]$ ]]; then
                 sudo dnf autoremove -y
                 echo "Paquetes eliminados."
@@ -468,7 +468,7 @@ function optimization() {
         varlog_size=$(du -hs /var/log 2> /dev/null | awk '{print $1}')
         echo -e "${yellow}He detectado que su carpeta /var/log (donde se almacenan los logs del sistema) tiene un tamaño de $varlog_size ¿Quiere eliminar los logs de las ultimas 2 semanas? presiona y/N ${default}"
         sleep 1.5
-        
+
         read -r -p "¿Desea continuar con la eliminación de logs? (y/N): " confirm
         confirm=${confirm:-N}
         if [[ "$confirm" =~ ^[Yy]$ ]]; then
@@ -477,10 +477,10 @@ function optimization() {
         else
             echo "[!] Eliminación de logs cancelada."
         fi
-        
+
         press_any_key
         clear
-    else 
+    else
         main
     fi
 }
@@ -541,7 +541,7 @@ function install_nvidia_drivers() {
     check_rpm_fusion; clear
     nvidia_gpu_name=$(glxinfo -B | grep "Device:" | cut -d':' -f2- | sed 's/ (.*)//' | xargs)
     nvidia_gpu_name_lower=$(echo "$gpu_name" | tr '[:upper:]' '[:lower:]')
-    
+
     local nvidia_pkgs=("akmod-nvidia" "xorg-x11-drv-nvidia-cuda")
 
     gum style \
@@ -614,7 +614,7 @@ function install_rcv11x_config() {
         cp -rv "$SCRIPT_DIR/wallpapers/" "$pictures_dir"
         kwriteconfig6 --file "$HOME"/.config/kcminputrc --group Mouse --key cursorTheme "Bibata-Modern-Ice"
         plasma-apply-wallpaperimage "/home/$USER/Imágenes/wallpapers/4k/250345-final.png"
-        
+
         {
             echo
             echo "[services][kitty.desktop]"
@@ -645,7 +645,7 @@ function show_help() {
   echo "  -h, --help       Show this help"
   echo "  -i, --install    Instalar el repo en el directorio $HOME/.fedorafresh para usarlo como un programa"
   echo "  -u, --update     Buscar actualizaciones y actualizar el repositorio"
- 
+
   exit 0
 }
 
@@ -671,11 +671,11 @@ function install_home_dir() {
 
     check_gum_installed
 
-    if [[ -f "$HOME/.fedorafresh" && -f "$HOME/.fedorafresh/fedorafresh.sh" ]]; then         
+    if [[ -f "$HOME/.fedorafresh" && -f "$HOME/.fedorafresh/fedorafresh.sh" ]]; then
         gum style \
             --foreground "#38b4ee" --border double --margin "1 2" --padding "1 2" --align center --width 80 \
             "ℹ️ FedoraFresh ya se encuentra instalado en '$HOME/.fedorafresh'"
-        return 0         
+        return 0
     else
         git clone https://github.com/rcv11x/FedoraFresh.git "$HOME/.fedorafresh" && banner_text "✅ Se ha instalado FedoraFresh en '$HOME/.fedorafresh', Asegurate de añadir el alias de tu .bashrc o .zshrc para poder usar la herramienta desde cualquier ruta" "Copia y pega esto en tu shell: alias fedorafresh='$HOME/.fedorafresh/fedorafresh.sh' " || echo -e "❌ Ha ocurrido un error el instalar el repo, comprueba tu conexion a internet\n"
     fi

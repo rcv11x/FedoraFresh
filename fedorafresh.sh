@@ -14,14 +14,14 @@ source "$SCRIPT_DIR/scripts/packages_list.sh"
 trap stop_script INT
 
 function show_banner() {
-                                                         
+
     echo -e "  _____        _                 _____              _      "
     echo -e " |  ___|__  __| | ___  _ __ __ _|  ___| __ ___  ___| |__   "
     echo -e " | |_ / _ \/ _' |/ _ \| '__/ _' | |_ | '__/ _ \/ __| '_ \  "
     echo -e " |  _|  __/ (_| | (_) | | | (_| |  _|| | |  __/\__ \ | | | "
     echo -e " |_|  \___|\__,_|\___/|_|  \__,_|_|  |_|  \___||___/_| |_| \n"
     echo -e "Hola $(whoami)! 👋🏼 | Fedora: ${fedora_variant} v${fedora_version}"
-    echo -e "Estas en: 📁 ${yellow}$SCRIPT_DIR${default}\n\n" 
+    echo -e "Estas en: 📁 ${yellow}$SCRIPT_DIR${default}\n\n"
 
 }
 
@@ -43,7 +43,7 @@ function installation() {
     clear
     check_deps
     speed_test
-    
+
     if ! gum confirm "¿Quieres empezar con la instalacion de FedoraFresh?"; then
         clear
         main
@@ -73,7 +73,7 @@ function installation() {
         install_gpu_drivers
         update_firmware
         install_essential_packages
-        
+
         if kdialog --title "Instalacion terminada" --yesno "Instalacion exitosa!, puedes cancelar para volver al script o reiniciar el PC" \
            --yes-label "Reiniciar ahora" --no-label "Cancelar" 2> /dev/null; then
             sudo reboot now
@@ -81,7 +81,7 @@ function installation() {
             clear
         fi
     fi
-       
+
 }
 
 function main(){
@@ -97,7 +97,7 @@ function main(){
             menu
 
             read -r -p "${prompt}" opcion
-            case $opcion in 
+            case $opcion in
                 1)
                     installation
                     ;;
@@ -136,7 +136,7 @@ function main(){
                 0)
                     exit 0
                     ;;
-                *) 
+                *)
                     echo -e "\n${red}[!] Opción no válida${default}"
                     press_any_key
                     clear
@@ -144,7 +144,7 @@ function main(){
             esac
         done
     fi
-    
+
 }
 case "$1" in
   -h|--help)
@@ -167,4 +167,3 @@ case "$1" in
 esac
 
 main
-
