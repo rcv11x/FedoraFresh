@@ -1,13 +1,6 @@
- # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
-
+export PATH="$PATH:$HOME/.local/bin"
 export ZSH="$HOME/.oh-my-zsh"
 # ZSH_THEME="afowler"
-# ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -64,10 +57,6 @@ plugins=(
 )
 
 source $ZSH/oh-my-zsh.sh
-#source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-#source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-#source /usr/share/zsh/plugins/zsh-syntax-highlighting
-#source /usr/share/zsh/plugins/zsh-autosuggestions
 
 # configure key keybindings
 bindkey -e                                        # emacs key bindings
@@ -104,11 +93,13 @@ HISTSIZE=2000
 SAVEHIST=2000
 
 # Manual aliases
-alias ll='/usr/bin/lsd -lh --group-dirs=first'
-alias la='/usr/bin/lsd -a --group-dirs=first'
-alias l='/usr/bin/lsd --group-dirs=first'
-alias lla='/usr/bin/lsd -lha --group-dirs=first'
-alias ls='/usr/bin/lsd --group-dirs=first'
+alias l='eza --group-directories-first --icons'
+alias la='eza -a --group-directories-first --icons'
+alias ll='eza -l --group-directories-first --icons'
+alias lla='eza -la --group-directories-first --icons'
+alias llo='eza -lo --group-directories-first --icons'
+alias llm='eza -lm --sort newest --group-directories-first --icons'
+alias ls='eza --group-directories-first --icons'
 alias cat='/usr/bin/bat'
 alias catn='/usr/bin/cat'
 alias catnl='/usr/bin/bat --paging=never'
@@ -128,6 +119,23 @@ alias editshell="nano ~/.zshrc"
 alias editterm="nano ~/.config/kitty/kitty.conf"
 alias h='history'
 alias rustscan='docker run -it --rm --name rustscan rustscan/rustscan:2.1.1'
+alias fedorafresh='$HOME/.fedorafresh/fedorafresh.sh'
+
+# Ver puertos abiertos
+alias openports='netstat -nape --inet'
+
+# Reinicios seguros y forzados
+alias rebootsafe='sudo shutdown -r now'
+alias rebootforce='sudo shutdown -r -n now'
+
+# Mostrar el espacio en disco y el espacio utilizado en una carpeta
+alias diskspace="du -S | sort -n -r |more"
+alias folders='du -h --max-depth=1'
+alias folderssort='find . -maxdepth 1 -type d -print0 | xargs -0 du -sk | sort -rn'
+alias tree='tree -CAhF --dirsfirst'
+alias treed='tree -CAFd'
+alias mountedinfo='df -hT'
+
 
 # Functions
 # Functions
@@ -302,3 +310,10 @@ eval "$(pyenv init -)"
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 # [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 eval "$(starship init zsh)"
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/home/rcv11x/.lmstudio/bin"
+# End of LM Studio CLI section
+
+. "$HOME/.cargo/env"            # For sh/bash/zsh/ash/dash/pdksh
+
