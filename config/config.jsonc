@@ -1,113 +1,122 @@
 {
     "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
     "logo": {
-        "type": "builtin",
-        "height": 15,
-        "width": 30,
+        "type": "kitty",
+        "source": "/home/rcv11x/.config/fastfetch/charizard.png",
+        "height": 20,
+        "recache": true,
+        "width": 45,
         "padding": {
-            "top": 5,
-            "left": 3
+            "top": 2,
+            "left": 1
         }
     },
     "modules": [
         "break",
         {
             "type": "custom",
-            "format": "\u001b[90m┌──────────────────────Hardware──────────────────────┐"
+            "format": "\u001b[90m┌────────────────────────Hardware────────────────────────┐"
         },
         {
             "type": "host",
-            "key": " PC",
+            "key": "│ ┌ PC",
             "keyColor": "green"
         },
         {
             "type": "cpu",
-            "key": "│ ├",
+            "key": "│ ├ CPU",
             "keyColor": "green"
         },
         {
             "type": "gpu",
-            "key": "│ ├󰍛",
+            "key": "│ ├ GPU",
             "keyColor": "green"
         },
         {
             "type": "memory",
-            "key": "│ ├󰍛",
+            "key": "│ ├ RAM",
             "keyColor": "green"
         },
         {
             "type": "disk",
-            "key": "└ └",
+            "key": "│ ├ Disco",
+            "keyColor": "green"
+        },
+        {
+            "type": "display",
+            "key": "└ └󰍹 Monitor",
             "keyColor": "green"
         },
         {
             "type": "custom",
-            "format": "\u001b[90m└────────────────────────────────────────────────────┘"
+            "format": "\u001b[90m└────────────────────────────────────────────────────────┘"
         },
         "break",
         {
             "type": "custom",
-            "format": "\u001b[90m┌──────────────────────Software──────────────────────┐"
+            "format": "\u001b[90m┌───────────────────────────Software───────────────────────────┐"
         },
         {
             "type": "os",
-            "key": " OS",
-            "keyColor": "yellow"
+            "key": "│ ┌  OS",
+            "keyColor": "yellow",
+            "format": "{~2,-2}"
         },
         {
             "type": "kernel",
-            "key": "│ ├",
-            "keyColor": "yellow"
+            "key": "│ ├  Kernel",
+            "keyColor": "yellow",
+            "format": "{2}"
         },
         {
             "type": "bios",
-            "key": "│ ├",
+            "key": "│ ├  BIOS",
             "keyColor": "yellow"
         },
         {
             "type": "packages",
-            "key": "│ ├󰏖",
+            "key": "│ ├󰏖  Paquetes",
             "keyColor": "yellow"
         },
         {
             "type": "shell",
-            "key": "└ └",
+            "key": "└ └  Shell",
             "keyColor": "yellow"
         },
         "break",
         {
             "type": "de",
-            "key": " DE",
-            "keyColor": "blue"
-        },
-        {
-            "type": "lm",
-            "key": "│ ├",
+            "key": "┌ ┌  DE",
             "keyColor": "blue"
         },
         {
             "type": "wm",
-            "key": "│ ├",
+            "key": "│ ├  WM",
             "keyColor": "blue"
         },
         {
             "type": "wmtheme",
-            "key": "│ ├󰉼",
+            "key": "│ ├󰉼 Tema",
+            "keyColor": "blue"
+        },
+        {
+            "type": "terminalfont",
+            "key": "│ ├ Font",
             "keyColor": "blue"
         },
         {
             "type": "terminal",
-            "key": "└ └",
+            "key": "│ └ Term",
             "keyColor": "blue"
         },
         {
             "type": "custom",
-            "format": "\u001b[90m└────────────────────────────────────────────────────┘"
+            "format": "\u001b[90m└─────────────────────────────────────────────────────────────┘"
         },
         "break",
         {
             "type": "custom",
-            "format": "\u001b[90m┌────────────────────Uptime / Age / DT────────────────────┐"
+            "format": "\u001b[90m┌──────────────Uptime / Age──────────────┐"
         },
         {
             "type": "command",
@@ -121,13 +130,8 @@
             "keyColor": "magenta"
         },
         {
-            "type": "datetime",
-            "key": "  DateTime ",
-            "keyColor": "magenta"
-        },
-        {
             "type": "custom",
-            "format": "\u001b[90m└─────────────────────────────────────────────────────────┘"
+            "format": "\u001b[90m└─────────────────────────────────────────┘"
         },
 
 //        {
@@ -137,7 +141,7 @@
         {
             "type": "colors",
             "paddingLeft": 2,
-            "symbol": "circle"
+            "symbol": "diamond"
         }
  
     ]
